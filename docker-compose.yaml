@@ -1,0 +1,8 @@
+name: choomai_bot
+services:
+  node_bot:
+    image: choomai-bot:latest
+    env_file: .env
+    volumes:
+      - /run/redis/redis-server.sock:/run/redis/redis-server.sock:rw
+      - /run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock:rw

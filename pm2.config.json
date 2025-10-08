@@ -1,0 +1,13 @@
+{
+    "apps": [
+        {
+            "name": "discord-bot",
+            "script": "/home/choomai/node_apps/Discord-Bot/app.js",
+            "cwd": "/home/choomai/node_apps/Discord-Bot/",
+            "instance": 1,
+            "watch": false,
+            "autorestart": false,
+            "out_file": "/dev/null"
+        }
+    ]
+}

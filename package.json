@@ -1,0 +1,25 @@
+{
+    "name": "choomai-bot",
+    "version": "0.6.2",
+    "description": "A Discord Bot using discord.js",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "sync": "node deploy_cmd.js"
+    },
+    "author": "Choomai",
+    "license": "AGPL-3.0-or-later",
+    "engines": {
+        "node": ">=20.12.0"
+    },
+    "dependencies": {
+        "bull": "^4.12.2",
+        "discord.js": "^14.21.0",
+        "mysql2": "^3.6.3",
+        "node-fetch": "^2.7.0",
+        "wol": "^1.0.7"
+    },
+    "devDependencies": {
+        "dotenv": "^17.2.2"
+    }
+}
