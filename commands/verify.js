@@ -1,6 +1,8 @@
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 
 async function execute(interaction, verifyAttempts) {
+    return await interaction.reply({ content: "Command disabled!", flags: MessageFlags.Ephemeral });
+
     const guildMember = interaction.guild.members.cache.get(interaction.user.id);
 
     if (guildMember.roles.cache.has(process.env.DCG_MEMBER_ID))
