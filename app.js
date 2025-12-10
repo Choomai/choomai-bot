@@ -87,6 +87,12 @@ client.on(Events.ClientReady, () => {
     console.log(`Logged in as ${client.user.tag}.`);
 });
 
+client.on(Events.GuildMemberAdd, async member => {
+    const creator = await client.users.fetch(process.env.CHOOMAI);
+    try {return await creator.send(`${member} has joined the server **${member.guild.name}**. Please verify.`)}
+    catch {console.warn("Failed to send DM to creator!")}
+})
+
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
     if (!interaction.inGuild()) return interaction.reply("Hey! Don't use these commands here; use them on your server.");
