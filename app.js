@@ -7,10 +7,6 @@ const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, M
 // const express = require("express");
 
 const { formatTime } = require("./include/time.js");
-Date.prototype.addHours = function(h) {
-    this.setHours(this.getHours() + h);
-    return this;
-};
 
 const db = mysql.createPool({
     host: process.env.DB_HOST,
