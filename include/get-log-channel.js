@@ -6,7 +6,7 @@ const { Client, TextChannel } = require("discord.js");
  * If neither is found, return null
  * @param {Client} client
  * @param {string} guildId 
- * @param {Array} cachedLogChannels
+ * @param {Record<string, TextChannel>} cachedLogChannels
  * @returns {TextChannel|null}
  */
 async function getLogChannel(client, guildId, cachedLogChannels) {
