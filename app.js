@@ -7,6 +7,7 @@ const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, M
 // const express = require("express");
 
 const { formatTime } = require("./include/time.js");
+const { getLogChannel } = require("./include/get-log-channel.js");
 
 const db = mysql.createPool({
     host: process.env.DB_HOST,
@@ -84,9 +85,7 @@ client.on(Events.ClientReady, () => {
 });
 
 client.on(Events.GuildMemberAdd, async member => {
-    const creator = await client.users.fetch(process.env.CHOOMAI);
-    try {return await creator.send(`${member} has joined the server **${member.guild.name}**. Please verify.`)}
-    catch {console.warn("Failed to send DM to creator!")}
+    getLogChannel(member.guild.id)?.send(`${member} has joined the server. Please verify.`);
 })
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -128,18 +127,8 @@ client.on(Events.InteractionCreate, async interaction => {
         .addFields(
             {name: "Issuer", value: `${interaction.user}`, inline: true},
             {name: "Command", value: `\`/${interaction.commandName}\``, inline: true}
-        )
-    if (logChannels[interaction.guildId]) return await logChannels[interaction.guildId].send({ embeds: [embedLog] })
-    else {
-        const [log_channels_query] = await db.query("SELECT guild_id, channel_id FROM log_channels WHERE guild_id = ?", [interaction.guildId]);
-        if (log_channels_query.length <= 0) return;
-
-        const channel = await client.channels.fetch(log_channels_query[0].channel_id);
-        if (!channel?.isTextBased()) return console.error(`Invalid log channel type for guild ${interaction.guildId}`);
-        logChannels[interaction.guildId] = channel;
-
-        await logChannels[interaction.guildId].send({ embeds: [embedLog] })
-    };
+        );
+    getLogChannel(interaction.guildId, logChannels)?.send({ embeds: [embedLog] });
 });
 
 // app.put("/status", (req, res) => {
