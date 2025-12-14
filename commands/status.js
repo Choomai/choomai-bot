@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const fetch = require("node-fetch");
+const { exec } = require("node:child_process");
 const net = require("node:net");
 const version = require("../package.json").version;
 
@@ -21,15 +22,7 @@ async function execute(interaction) {
         await interaction.editReply({embeds: [embedReply]});
     };
 
-    const abortController = new AbortController();
-    fetch("https://choomai.net", {
-        headers: { "User-Agent": `Choomai/${version}` },
-        signal: abortController.signal
-    })
-    .then(res => updateStat(res.ok, 0))
-    .catch(() => updateStat(false, 0))
-    setTimeout(() => abortController.abort(), 5000);
-    
+    exec("systemctl is-active nginx --quiet", err => updateStat(0, !err));
 
     async function checkPort(host, port) {
         const client = new net.Socket();
