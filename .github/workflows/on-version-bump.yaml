@@ -43,4 +43,4 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/choomai-bot:${{ github.ref_name }}-latest
+          tags: ghcr.io/${{ github.repository | lower }}/choomai-bot:${{ github.ref_name }}-latest
