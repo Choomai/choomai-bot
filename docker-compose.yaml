@@ -2,7 +2,7 @@ name: choomai_bot
 
 services:
   node_bot:
-    image: choomai-bot:latest
+    image: ghcr.io/choomai/choomai-bot:latest
     env_file: .env
     volumes:
       - /run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock:rw
