@@ -5,7 +5,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 LABEL org.opencontainers.image.source=https://github.com/Choomai/choomai-bot
-LABEL org.opencontainers.image.description="choomai-bot image"
+LABEL org.opencontainers.image.description="choomai-bot Image"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
 
 RUN npm ci --omit=dev

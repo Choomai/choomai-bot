@@ -1,8 +1,21 @@
 name: choomai_bot
+
 services:
   node_bot:
     image: choomai-bot:latest
     env_file: .env
     volumes:
-      - /run/redis/redis-server.sock:/run/redis/redis-server.sock:rw
       - /run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock:rw
+      - redis_socket:/run/redis:rw
+
+  redis:
+    image: redis:8-alpine
+    command: redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700
+    volumes:
+      - redis_socket:/run/redis
+    healthcheck:
+      test: redis-cli -s /run/redis/redis.sock ping || exit 1
+    restart: unless-stopped
+
+volumes:
+  redis_socket:
