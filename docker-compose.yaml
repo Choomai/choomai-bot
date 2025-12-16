@@ -7,6 +7,9 @@ services:
     volumes:
       - /run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock:rw
       - redis_socket:/run/redis:rw
+    environment:
+      - REDIS_HOST=localhost
+      - REDIS_SOCKET=/run/redis/redis.sock
 
   redis:
     image: redis:8-alpine
