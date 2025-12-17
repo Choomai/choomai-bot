@@ -1,6 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
-if (process.env.NODE_ENV != "production") require("dotenv").config()
+if (process.env.NODE_ENV != "production") require("dotenv").config({ override: true })
 const Queue = require("bull");
 const mysql = require("mysql2/promise");
 const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, MessageFlags } = require("discord.js");
@@ -20,8 +20,7 @@ const db = mysql.createPool({
 
 const redis_conf = {
     host: process.env.REDIS_HOST,
-    path: process.env.REDIS_SOCKET,
-    password: process.env.REDIS_PASSWORD
+    path: process.env.REDIS_SOCKET
 }
 const afkQueue = new Queue("afkQueue", {redis: redis_conf});
 const afkNotify = new Queue("afkNotify", {redis: redis_conf});
