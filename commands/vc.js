@@ -71,6 +71,21 @@ async function execute(interaction, options) {
             visibility = voiceChannels.find(channel => channel.id == selectedChannel.id).visibility;
             await interaction.reply({ content: `Disallowed ${targetUser} to the VC`, flags: visibility ? MessageFlags.Ephemeral : undefined })
             break;
+
+        case "purge":
+            if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageChannels)) return await interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
+            await interaction.deferReply();
+
+            let removedCounter = 0;
+            for (let i = voiceChannels.length - 1; i >= 0; i--) {
+                const voiceChannel = await interaction.guild.channels.fetch(voiceChannels[i].id);
+                if (voiceChannel?.members.size !== 0) continue;
+                voiceChannel.delete();
+                voiceChannels.splice(i, 1);
+                await interaction.editReply(`Removed ${++removedCounter} empty private VC.`);
+            }
+            if (removedCounter === 0) return await interaction.editReply("Can't find any empty private VC to be deleted.");
+            break;
     }
 }
 
@@ -125,6 +140,10 @@ module.exports = {
                 .setDescription("Voice channel to modify")
                 .setRequired(true)
             )
+        )
+        .addSubcommand(new SlashCommandSubcommandBuilder()
+            .setName("purge")
+            .setDescription("Remove all unused VC that users created")
         ),
     execute
 };
