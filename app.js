@@ -85,7 +85,7 @@ client.on(Events.ClientReady, () => {
 });
 
 client.on(Events.GuildMemberAdd, async member => {
-    getLogChannel(member.guild.id)?.send(`${member} has joined the server. Please verify.`);
+    (await getLogChannel(client, interaction.guildId, passing_obj))?.send(`${member} has joined the server. Please verify.`);
 })
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -128,7 +128,7 @@ client.on(Events.InteractionCreate, async interaction => {
             {name: "Issuer", value: `${interaction.user}`, inline: true},
             {name: "Command", value: `\`/${interaction.commandName}\``, inline: true}
         );
-    getLogChannel(interaction.guildId, logChannels)?.send({ embeds: [embedLog] });
+    (await getLogChannel(client, interaction.guildId, passing_obj))?.send({ embeds: [embedLog] });
 });
 
 // app.put("/status", (req, res) => {

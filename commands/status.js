@@ -1,8 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const fetch = require("node-fetch");
 const { exec } = require("node:child_process");
 const net = require("node:net");
-const version = require("../package.json").version;
 
 async function execute(interaction) {
     await interaction.deferReply();
@@ -22,7 +20,7 @@ async function execute(interaction) {
         await interaction.editReply({embeds: [embedReply]});
     };
 
-    exec("systemctl is-active nginx --quiet", err => updateStat(0, !err));
+    exec("systemctl is-active nginx --quiet", err => updateStat(!err, 0));
 
     async function checkPort(host, port) {
         const client = new net.Socket();
