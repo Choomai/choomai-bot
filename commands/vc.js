@@ -1,6 +1,6 @@
 // TODO: Add subcommand to change visibilty, remove user from VC
 
-const { SlashCommandBuilder, MessageFlags, PermissionsBitField, ChannelType, SlashCommandSubcommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitField, ChannelType, SlashCommandSubcommandBuilder, CommandInteraction } = require("discord.js");
 
 async function execute(interaction, options) {
     const { voiceChannels } = options;
