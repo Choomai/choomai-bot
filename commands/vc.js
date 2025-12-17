@@ -20,7 +20,7 @@ async function execute(interaction, options) {
                 permissionOverwrites: [
                     {
                         id: interaction.guild.id,
-                        deny: [PermissionsBitField.Flags.Connect, visibility ? PermissionsBitField.Flags.ViewChannel : undefined],
+                        deny: [visibility ? PermissionsBitField.Flags.ViewChannel : PermissionsBitField.Flags.Connect],
                     },
                     {
                         id: interaction.user.id,
@@ -32,11 +32,11 @@ async function execute(interaction, options) {
                     }
                 ]
             });
-            await interaction.editReply(`Private voice channel created! ${visibility ? "" : "(Hidden from channel list)"}`);
+            await interaction.editReply(`Private voice channel created!${visibility ? " (Hidden from channel list)" : ""}`);
             const interval = setInterval(() => {
                 if (channel?.members.size === 0) {
                     clearInterval(interval);
-                    vc.delete();
+                    channel.delete();
                     voiceChannels = voiceChannels.filter(ch => ch.id !== channel.id);
                 }
             }, 5 * 60 * 1000);
