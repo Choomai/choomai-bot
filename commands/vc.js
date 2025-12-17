@@ -4,12 +4,12 @@ const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitFi
 
 async function execute(interaction, options) {
     const { voiceChannels } = options;
-    let visibility, targetUser, selectedChannel;
+    let hidden, targetUser, selectedChannel;
 
     switch (interaction.options.getSubcommand()) {
         case "new":
-            visibility = interaction.options.getBoolean("visible") ?? true;
-            await interaction.deferReply({ flags: visibility ? MessageFlags.Ephemeral : undefined });
+            hidden = interaction.options.getBoolean("hidden") ?? true;
+            await interaction.deferReply({ flags: hidden ? MessageFlags.Ephemeral : undefined });
 
             targetUser = interaction.options.getUser("user");
             targetCategory = interaction.options.getChannel("category");
@@ -22,7 +22,7 @@ async function execute(interaction, options) {
                 permissionOverwrites: [
                     {
                         id: interaction.guild.id,
-                        deny: [visibility ? PermissionsBitField.Flags.ViewChannel : PermissionsBitField.Flags.Connect],
+                        deny: [hidden ? PermissionsBitField.Flags.ViewChannel : PermissionsBitField.Flags.Connect],
                     },
                     {
                         id: interaction.user.id,
@@ -34,7 +34,7 @@ async function execute(interaction, options) {
                     }
                 ]
             });
-            await interaction.editReply(`Private voice channel created!${visibility ? " (Hidden from channel list)" : ""}`);
+            await interaction.editReply(`Private voice channel created!${hidden ? " (Hidden from channel list)" : ""}`);
             const interval = setInterval(() => {
                 if (channel?.members.size === 0) {
                     clearInterval(interval);
@@ -45,7 +45,7 @@ async function execute(interaction, options) {
             voiceChannels.push({
                 id: channel.id,
                 users: [interaction.user, targetUser],
-                visibility,
+                hidden,
                 interval
             });
             break;
@@ -59,8 +59,8 @@ async function execute(interaction, options) {
                 Connect: true,
                 ViewChannel: true
             });
-            visibility = voiceChannels.find(channel => channel.id == selectedChannel.id).visibility;
-            await interaction.reply({ content: `Allowed ${targetUser} to the VC`, flags: visibility ? MessageFlags.Ephemeral : undefined })
+            hidden = voiceChannels.find(channel => channel.id == selectedChannel.id).hidden;
+            await interaction.reply({ content: `Allowed ${targetUser} to the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
             break;
 
         case "remove":
@@ -68,8 +68,8 @@ async function execute(interaction, options) {
             selectedChannel = interaction.options.getChannel("vc");
             if (selectedChannel.type !== ChannelType.GuildVoice) return await interaction.reply({ content: "Wrong type of channel, please specify a VC", flags: MessageFlags.Ephemeral });
 
-            visibility = voiceChannels.find(channel => channel.id == selectedChannel.id).visibility;
-            await interaction.reply({ content: `Disallowed ${targetUser} to the VC`, flags: visibility ? MessageFlags.Ephemeral : undefined })
+            hidden = voiceChannels.find(channel => channel.id == selectedChannel.id).hidden;
+            await interaction.reply({ content: `Disallowed ${targetUser} to the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
             break;
 
         case "purge":
@@ -108,8 +108,8 @@ module.exports = {
                 .setRequired(false)
             )
             .addBooleanOption(option => option
-                .setName("visible")
-                .setDescription("Show the VC in channel list with locked icon")
+                .setName("hidden")
+                .setDescription("Hide the VC from channel list or just show it with locked icon")
                 .setRequired(false)
             )
         )
