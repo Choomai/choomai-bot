@@ -84,7 +84,7 @@ client.on(Events.ClientReady, () => {
 });
 
 client.on(Events.GuildMemberAdd, async member => {
-    (await getLogChannel(client, interaction.guildId, passing_obj))?.send(`${member} has joined the server. Please verify.`);
+    (await getLogChannel(client, member.guild.id, passing_obj))?.send(`${member} has joined the server. Please verify.`);
 })
 
 client.on(Events.InteractionCreate, async interaction => {
