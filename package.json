@@ -1,6 +1,6 @@
 {
     "name": "choomai-bot",
-    "version": "0.7.6-hotfix",
+    "version": "0.7.7",
     "description": "A Discord Bot using discord.js",
     "main": "app.js",
     "scripts": {
