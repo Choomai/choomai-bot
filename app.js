@@ -3,7 +3,7 @@ const path = require("node:path");
 if (process.env.NODE_ENV != "production") require("dotenv").config({ override: true })
 const Queue = require("bull");
 const mysql = require("mysql2/promise");
-const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, MessageFlags } = require("discord.js");
+const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
 // const express = require("express");
 
 const { formatTime } = require("./include/time.js");
@@ -61,8 +61,8 @@ const client = new Client({
 });
 client.cooldowns = new Collection();
 
-const logChannels = {}, verifyAttempts = {}, voiceChannels = [];
-passing_obj = { verifyAttempts, db, afkQueue, afkNotify, voiceChannels, logChannels }
+const guildslogChannel = {}, verifyAttempts = {}, voiceChannels = [], memberVCStates = {};
+const passing_obj = { verifyAttempts, db, afkQueue, afkNotify, voiceChannels, logChannels: guildslogChannel };
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands/");
@@ -85,6 +85,33 @@ client.on(Events.ClientReady, () => {
 
 client.on(Events.GuildMemberAdd, async member => {
     (await getLogChannel(client, member.guild.id, passing_obj))?.send(`${member} has joined the server. Please verify.`);
+})
+
+client.on(Events.VoiceStateUpdate, async state => {
+    if (state.member.permissions.has(PermissionFlagsBits.ManageChannels)) return;
+
+    if (state.channelId !== null) memberVCStates[state.member.id] = { channelId: state.channelId , joined: true, timestamp: Date.now() };
+
+    if (memberVCStates[state.member.id]?.joined) {
+        const timePassed = Date.now() - memberVCStates[state.member.id].timestamp;
+        if (timePassed > 5000) return delete memberVCStates[state.member.id];
+
+        try {
+            await state.member.timeout(10 * 60 * 1000, "Joining & leaving VC in a short timespan");
+            const logChannel = await getLogChannel(client, state.guild.id, passing_obj);
+            const mutedLog = new EmbedBuilder()
+                .setColor(0x0099FF)
+                .setTimestamp()
+                .setAuthor({ name: `Muted [Auto] | ${state.member.user.username}`, iconURL: state.member.user.displayAvatarURL() })
+                .addFields(
+                    { name: "User", value: state.member.toString(), inline: true },
+                    { name: "Moderator", value: state.client.toString(), inline: true },
+                    { name: "Length", value: "10 minutes", inline: true },
+                    { name: "Reason", value: "Joining & leaving VC in a short timespan" }
+                );
+            logChannel?.send(mutedLog);
+        } catch (err) {console.error(err)}
+    };
 })
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -118,13 +145,13 @@ client.on(Events.InteractionCreate, async interaction => {
     };
     
 
-    let embedLog = new EmbedBuilder()
+    const embedLog = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTimestamp()
         .setTitle("Command Logging")
         .setThumbnail(interaction.user.displayAvatarURL())
         .addFields(
-            {name: "Issuer", value: `${interaction.user}`, inline: true},
+            {name: "Issuer", value: interaction.user.toString(), inline: true},
             {name: "Command", value: `\`/${interaction.commandName}\``, inline: true}
         );
     (await getLogChannel(client, interaction.guildId, passing_obj))?.send({ embeds: [embedLog] });
