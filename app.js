@@ -55,7 +55,8 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.DirectMessages,
-        GatewayIntentBits.GuildMembers
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildVoiceStates
     ],
     partials: [Partials.Channel]
 });
@@ -87,31 +88,32 @@ client.on(Events.GuildMemberAdd, async member => {
     (await getLogChannel(client, member.guild.id, passing_obj))?.send(`${member} has joined the server. Please verify.`);
 })
 
-client.on(Events.VoiceStateUpdate, async state => {
-    if (state.member.permissions.has(PermissionFlagsBits.ManageChannels)) return;
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+    if (newState.member.permissions.has(PermissionFlagsBits.ManageChannels)) return;
+    if ((oldState.channelId !== null) === (newState.channelId !== null)) return; // Sanity check I guess, XOR btw
 
-    if (state.channelId !== null) memberVCStates[state.member.id] = { channelId: state.channelId , joined: true, timestamp: Date.now() };
+    if (!oldState.channelId && newState.channelId) return memberVCStates[newState.member.id] = { channelId: newState.channelId , joined: true, timestamp: Date.now() };
 
-    if (memberVCStates[state.member.id]?.joined) {
-        const timePassed = Date.now() - memberVCStates[state.member.id].timestamp;
-        if (timePassed > 5000) return delete memberVCStates[state.member.id];
+    if (!memberVCStates[newState.member.id]?.joined) return;
 
-        try {
-            await state.member.timeout(10 * 60 * 1000, "Joining & leaving VC in a short timespan");
-            const logChannel = await getLogChannel(client, state.guild.id, passing_obj);
-            const mutedLog = new EmbedBuilder()
-                .setColor(0x0099FF)
-                .setTimestamp()
-                .setAuthor({ name: `Muted [Auto] | ${state.member.user.username}`, iconURL: state.member.user.displayAvatarURL() })
-                .addFields(
-                    { name: "User", value: state.member.toString(), inline: true },
-                    { name: "Moderator", value: state.client.toString(), inline: true },
-                    { name: "Length", value: "10 minutes", inline: true },
-                    { name: "Reason", value: "Joining & leaving VC in a short timespan" }
-                );
-            logChannel?.send(mutedLog);
-        } catch (err) {console.error(err)}
-    };
+    const timePassed = Date.now() - memberVCStates[newState.member.id].timestamp;
+    if (timePassed > 5000) return delete memberVCStates[newState.member.id];
+
+    try {
+        await newState.member.timeout(10 * 60 * 1000, "Join & leave VC too fast");
+        const logChannel = await getLogChannel(client, newState.guild.id, passing_obj);
+        const mutedLog = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTimestamp()
+            .setAuthor({ name: `Muted [Auto] | ${newState.member.user.username}`, iconURL: newState.member.user.displayAvatarURL() })
+            .addFields(
+                { name: "User", value: newState.member.toString(), inline: true },
+                { name: "Moderator", value: newState.client.user.toString(), inline: true },
+                { name: "Length", value: "10 minutes", inline: true },
+                { name: "Reason", value: "Join & leave VC in a short timespan" }
+            );
+        logChannel?.send({ embeds: [mutedLog] });
+    } catch (err) {console.error(err)}
 })
 
 client.on(Events.InteractionCreate, async interaction => {
