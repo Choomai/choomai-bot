@@ -2,3 +2,5 @@ node_modules/
 unused/
 
 .env
+pm2.config.json
+ecosystem.config.js
