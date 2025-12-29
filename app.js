@@ -99,9 +99,10 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     const timePassed = Date.now() - memberVCStates[newState.member.id].timestamp;
     if (timePassed > 5000) return delete memberVCStates[newState.member.id];
 
+    const logChannel = await getLogChannel(client, newState.guild.id, passing_obj);
+
     try {
         await newState.member.timeout(10 * 60 * 1000, "Join & leave VC too fast");
-        const logChannel = await getLogChannel(client, newState.guild.id, passing_obj);
         const mutedLog = new EmbedBuilder()
             .setColor(0x0099FF)
             .setTimestamp()
@@ -112,7 +113,11 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
                 { name: "Length", value: "10 minutes", inline: true },
                 { name: "Reason", value: "Join & leave VC in a short timespan" }
             );
-        logChannel?.send({ embeds: [mutedLog] });
+        logChannel?.send({ embeds: [mutedLog] })
+            .catch(err => console.error("Failed to send message to the log channel", err));
+
+        newState.member.send("You have been muted for 10 minutes due to joining and leaving voice chat too quickly.")
+            .catch(err => console.error("Failed to send DM, user might disabled it.", err));
     } catch (err) {console.error(err)}
 })
 
@@ -136,6 +141,8 @@ client.on(Events.InteractionCreate, async interaction => {
     };
     timestamps.set(interaction.user.id, now);
 
+    const logChannel = await getLogChannel(client, interaction.guildId, passing_obj);
+
     try {await command.execute(interaction, passing_obj)}
     catch (error) {
         console.error(error);
@@ -156,7 +163,7 @@ client.on(Events.InteractionCreate, async interaction => {
             {name: "Issuer", value: interaction.user.toString(), inline: true},
             {name: "Command", value: `\`/${interaction.commandName}\``, inline: true}
         );
-    (await getLogChannel(client, interaction.guildId, passing_obj))?.send({ embeds: [embedLog] });
+    logChannel?.send({ embeds: [embedLog] }).catch(err => console.error("Failed to send message to the log channel", err));
 });
 
 // app.put("/status", (req, res) => {
