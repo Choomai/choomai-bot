@@ -62,7 +62,7 @@ const client = new Client({
 });
 client.cooldowns = new Collection();
 
-const guildslogChannel = {}, verifyAttempts = {}, voiceChannels = [], memberVCStates = {};
+const guildslogChannel = {}, verifyAttempts = {}, voiceChannels = [], memberVCStates = new Map();
 const passing_obj = { verifyAttempts, db, afkQueue, afkNotify, voiceChannels, logChannels: guildslogChannel };
 
 client.commands = new Collection();
@@ -90,15 +90,21 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     if (newState.member.permissions.has(PermissionFlagsBits.ManageChannels)) return;
     if ((oldState.channelId !== null) === (newState.channelId !== null)) return; // Sanity check I guess, XOR btw
 
-    if (!oldState.channelId && newState.channelId) return memberVCStates[newState.member.id] = { channelId: newState.channelId , joined: true, timestamp: Date.now() };
+    if (!oldState.channelId && newState.channelId) // Store timestamp when join
+        return memberVCStates.set(newState.member.id, { 
+            channelId: newState.channelId,
+            joined: true,
+            timestamp: Date.now()
+        });
 
     if (!memberVCStates[newState.member.id]?.joined) return;
+    
+    const storedState = memberVCStates.get(newState.member.id);
+    const timePassed = Date.now() - storedState.timestamp;
+    if (timePassed > 5000) return memberVCStates.delete(newState.member.id);
 
-    const timePassed = Date.now() - memberVCStates[newState.member.id].timestamp;
-    if (timePassed > 5000) return delete memberVCStates[newState.member.id];
 
     const logChannel = await getLogChannel(client, newState.guild.id, passing_obj);
-
     try {
         await newState.member.timeout(10 * 60 * 1000, "Join & leave VC too fast");
         const mutedLog = new EmbedBuilder()
@@ -116,6 +122,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 
         newState.member.send("You have been muted for 10 minutes due to joining and leaving voice chat too quickly.")
             .catch(err => console.warn("Failed to send DM, user might disabled it.", err));
+        memberVCStates.delete(newState.member.id);
     } catch (err) {console.error(err)}
 })
 
