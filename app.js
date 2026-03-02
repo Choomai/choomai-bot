@@ -80,9 +80,7 @@ for (const file of commandFiles) {
 
 
 
-client.on(Events.ClientReady, () => {
-    console.log(`Logged in as ${client.user.tag}.`);
-});
+client.on(Events.ClientReady, () => console.log(`Logged in as ${client.user.tag}.`));
 
 client.on(Events.GuildMemberAdd, async member => {
     (await getLogChannel(client, member.guild.id, passing_obj))?.send(`${member} has joined the server. Please verify.`);
@@ -114,10 +112,10 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
                 { name: "Reason", value: "Join & leave VC in a short timespan" }
             );
         logChannel?.send({ embeds: [mutedLog] })
-            .catch(err => console.error("Failed to send message to the log channel", err));
+            .catch(err => console.warn("Failed to send message to the log channel", err));
 
         newState.member.send("You have been muted for 10 minutes due to joining and leaving voice chat too quickly.")
-            .catch(err => console.error("Failed to send DM, user might disabled it.", err));
+            .catch(err => console.warn("Failed to send DM, user might disabled it.", err));
     } catch (err) {console.error(err)}
 })
 
