@@ -39,7 +39,7 @@ async function execute(interaction) {
     await interaction.deferReply();
     const embedReply = new EmbedBuilder()
         .setColor(0x0099FF)
-        .setAuthor({ name: "Server Status", iconURL: "https://assets.choomai.net/icons/network_256.png", url: "https://l.choomai.net/status" })
+        .setAuthor({ name: "Server Status", iconURL: "https://assets.choomai.net/icons/network_256.png", url: "https://status.choomai.net" })
         .setTimestamp()
         .addFields(
             { name: "Website", value: "🕒Checking", inline: true },
