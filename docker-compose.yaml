@@ -11,7 +11,9 @@ services:
       - REDIS_HOST=localhost
       - REDIS_SOCKET=/run/redis/redis.sock
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
   redis:
     image: redis:8-alpine
