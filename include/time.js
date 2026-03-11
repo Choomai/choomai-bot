@@ -1,3 +1,8 @@
+/**
+ * Convert 3m, 1h, 7d to seconds
+ * @param {string} timeStr 
+ * @returns {number}
+ */
 function parseTime(timeStr) {
     if (!timeStr) return;
     let time = 0;
@@ -14,6 +19,12 @@ function parseTime(timeStr) {
     }
     return time * 1000;
 }
+
+/**
+ * Convert seconds to "?d ?h ?m ?s"
+ * @param {number} ms 
+ * @returns {string}
+ */
 function formatTime(ms) {
     let seconds = ms / 1000;
     const days = Math.floor(seconds / (24*60*60));
