@@ -12,7 +12,7 @@ async function execute(interaction) {
     function wakeDevice(mac, ip, port = 9) {
         wol.wake(mac, {address: ip, port: port}, err => {
             if (err) return interaction.editReply({ content: "Failed to send the packet", flags: MessageFlags.Ephemeral });
-            interaction.editReply(`Successfully wake the device!\nAPI: https://api.choomai.net/wol?ip=${ip}&mac=${mac}&port=${port}`);
+            interaction.editReply(`Wake packet sent!`);
         });
     };
     
