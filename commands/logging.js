@@ -1,5 +1,12 @@
-const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits } = require("discord.js");
+const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, TextChannel } = require("discord.js");
 
+/**
+ * @param {CommandInteraction} interaction 
+ * @param {Object} options
+ * @param {Pool} options.db
+ * @param {TextChannel[]} options.logChannels
+ * @returns {void}
+ */
 async function execute(interaction, options) {
     const { db, logChannels } = options;
     let channel = interaction.options.getChannel("channel");

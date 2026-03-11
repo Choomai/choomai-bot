@@ -1,6 +1,10 @@
-const { SlashCommandBuilder, MessageFlags } = require("discord.js");
+const { SlashCommandBuilder, MessageFlags, CommandInteraction } = require("discord.js");
 const wol = require("wol");
 
+/**
+ * @param {CommandInteraction} interaction 
+ * @returns {void}
+ */
 async function execute(interaction) {
     const { options } = interaction;
 

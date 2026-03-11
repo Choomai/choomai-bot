@@ -1,6 +1,16 @@
 const { SlashCommandBuilder, SlashCommandSubcommandBuilder, MessageFlags } = require("discord.js");
 const { parseTime, formatTime } = require("../include/time.js");
+const { Pool } = require("mysql2/promise")
+const { Queue } = require("bull")
 
+/**
+ * @param {CommandInteraction} interaction 
+ * @param {Object} options
+ * @param {Pool} options.db
+ * @param {Queue} options.afkQueue
+ * @param {Queue} options.afkNotify
+ * @returns {void}
+ */
 async function execute(interaction, options) {
     const { db, afkQueue, afkNotify } = options;
     let rows, response, jobs, interval;

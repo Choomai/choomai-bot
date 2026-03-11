@@ -4,6 +4,9 @@ const SysInfo = require("systeminformation")
 const net = require("node:net");
 const { formatBytes } = require("../include/bytes.js");
 
+/**
+ * @returns {Promise<{ name: string, value: string, inline?: boolean }[]>}
+ */
 async function getSystemStatus() {
     // TODO: Put disks status into a follow-up response
     try {
@@ -35,6 +38,10 @@ async function getSystemStatus() {
     }
 }
 
+/**
+ * @param {CommandInteraction} interaction 
+ * @returns {void}
+ */
 async function execute(interaction) {
     await interaction.deferReply();
     const embedReply = new EmbedBuilder()
