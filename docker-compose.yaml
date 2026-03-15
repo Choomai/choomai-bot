@@ -2,28 +2,25 @@ name: choomai_bot
 
 services:
   node_bot:
+    container_name: choomai_bot
     image: ghcr.io/choomai/choomai-bot:latest
     env_file: .env
     volumes:
       - /run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock:rw
-      - redis_socket:/run/redis:rw
     environment:
-      - REDIS_HOST=localhost
-      - REDIS_SOCKET=/run/redis/redis.sock
+      - REDIS_HOST=redis
     depends_on:
       redis:
         condition: service_healthy
     restart: unless-stopped
 
   redis:
+    container_name: choomai_redis
     image: redis:8-alpine
     user: redis
-    command: redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 666
-    volumes:
-      - redis_socket:/run/redis
+    command: redis-server
     healthcheck:
-      test: redis-cli -s /run/redis/redis.sock ping || exit 1
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 3s
+      start_period: 1s
     restart: unless-stopped
-
-volumes:
-  redis_socket:
