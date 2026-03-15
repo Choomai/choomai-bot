@@ -27,7 +27,7 @@ const afkNotify = new Queue("afkNotify", { redis: redis_conf });
 afkQueue.process(async (job, done) => {
     const { userId } = job.data;
     let [rows] = await db.execute("SELECT end_time FROM afk_list WHERE user_id = ?", [userId]);
-    if (rows.length <= 0) {done(); return};
+    if (rows.length <= 0) return done();
 
     const user = await client.users.fetch(userId);
     if (rows[0].end_time <= Date.now()) {
