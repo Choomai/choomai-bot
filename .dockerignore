@@ -5,3 +5,5 @@ unused/
 README.md
 
 .env
+pm2.config.json
+ecosystem.config.js
