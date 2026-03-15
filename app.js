@@ -31,8 +31,8 @@ afkQueue.process(async (job, done) => {
 
     const user = await client.users.fetch(userId);
     if (rows[0].end_time <= Date.now()) {
-        await db.execute("DELETE FROM afk_list WHERE user_id = ?", [userId]);
-        await user.send("Your AFK status has expired.");
+        db.execute("DELETE FROM afk_list WHERE user_id = ?", [userId]);
+        user.send("Your AFK status has expired.");
     };
     let notify_jobs = (await afkNotify.getJobs()).filter(j => j.data?.userId == userId);
     notify_jobs.forEach(j => j.remove())
@@ -45,7 +45,7 @@ afkNotify.process(async (job, done) => {
     if (rows.length <= 0) {job.discard(); return done();};
 
     const user = await client.users.fetch(userId);
-    await user.send(`You have ${formatTime(rows[0].end_time - Date.now())} left.`);
+    user.send(`You have ${formatTime(rows[0].end_time - Date.now())} left.`);
     done();
 });
 
