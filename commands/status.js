@@ -8,29 +8,21 @@ const { formatBytes } = require("../include/bytes.js");
  * @returns {Promise<{ name: string, value: string, inline?: boolean }[]>}
  */
 async function getSystemStatus() {
-    // TODO: Put disks status into a follow-up response
     try {
         const sysInfoData = await Promise.all([
             SysInfo.currentLoad(),  
             SysInfo.cpuTemperature(),
             SysInfo.mem(),
-            SysInfo.diskLayout(),
             SysInfo.networkStats(),
             SysInfo.dockerInfo()
         ])
-
-        // const disksStatus = [];
-        // sysInfoData[3].forEach(disk => {
-        //     disksStatus.push({ device, type, name, size, smartStatus, temperature } = disk)
-        // })
 
         return [
             { name: "CPU Load", value: `Avg: \`${sysInfoData[0].avgLoad}\` / Current: \`${sysInfoData[0].currentLoad.toFixed(2)}\`` },
             { name: "CPU Temp", value: sysInfoData[1].main.toString(), inline: true },
             { name: "RAM (Used/Total)", value: `\`${formatBytes(sysInfoData[2].used)}\` / \`${formatBytes(sysInfoData[2].total)}\`` },
-            // { name: "Disk", value: `\`\`\`json${JSON.stringify(disksStatus, null, 2)}\`\`\`` },
-            { name: "Network (RX/TX)", value: `\`${formatBytes(sysInfoData[4][0].rx_bytes)}\` / \`${formatBytes(sysInfoData[4][0].tx_bytes)}\`` },
-            { name: "Docker", value: `Running: ${sysInfoData[5].containersRunning} / Total: ${sysInfoData[5].containers}` }
+            { name: "Network (RX/TX)", value: `\`${formatBytes(sysInfoData[3][0].rx_bytes)}\` / \`${formatBytes(sysInfoData[3][0].tx_bytes)}\`` },
+            { name: "Docker", value: `Running: ${sysInfoData[4].containersRunning} / Total: ${sysInfoData[4].containers}` }
         ]
     } catch (err) {
         console.error(err);
