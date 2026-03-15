@@ -5,6 +5,7 @@ const net = require("node:net");
 const { formatBytes } = require("../include/bytes.js");
 
 /**
+ * Get CPU, RAM, Network, Docker status for Discord embed message
  * @returns {Promise<{ name: string, value: string, inline?: boolean }[]>}
  */
 async function getSystemStatus() {
