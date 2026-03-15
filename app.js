@@ -22,8 +22,8 @@ const redis_conf = {
     host: process.env.REDIS_HOST,
     path: process.env.REDIS_SOCKET
 }
-const afkQueue = new Queue("afkQueue", {redis: redis_conf});
-const afkNotify = new Queue("afkNotify", {redis: redis_conf});
+const afkQueue = new Queue("afkQueue", { redis: redis_conf });
+const afkNotify = new Queue("afkNotify", { redis: redis_conf });
 afkQueue.process(async (job, done) => {
     const { userId } = job.data;
     let [rows] = await db.execute("SELECT end_time FROM afk_list WHERE user_id = ?", [userId]);
