@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "bull": "^4.12.2",
-        "discord.js": "^14.21.0",
+        "discord.js": "^14.25.1",
         "mysql2": "^3.6.3",
         "node-fetch": "^2.7.0",
         "systeminformation": "^5.31.1",
