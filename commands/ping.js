@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, CommandInteraction } = require("discord.js");
 
 /**
  * @param {CommandInteraction} interaction 

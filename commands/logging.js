@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, TextChannel } = require("discord.js");
+const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, TextChannel, CommandInteraction } = require("discord.js");
 
 /**
  * @param {CommandInteraction} interaction 
