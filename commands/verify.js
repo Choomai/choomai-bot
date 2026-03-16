@@ -5,7 +5,7 @@ async function execute(interaction, verifyAttempts) {
 
     const guildMember = interaction.guild.members.cache.get(interaction.user.id);
 
-    if (guildMember.roles.cache.has(process.env.DCG_MEMBER_ID))
+    if (guildMember.roles.cache.has(process.env.SERVER_MEMBER_ID))
         return await interaction.reply({ content: "You have already been verified!", flags: MessageFlags.Ephemeral });
 
     if (verifyAttempts[interaction.user.id] >= 3)
@@ -50,8 +50,8 @@ async function execute(interaction, verifyAttempts) {
     
     collector.on("collect", msg => {
         if (parseInt(msg.content) == answer) {
-            guildMember.roles.add(process.env.DCG_MEMBER_ID);
-            guildMember.roles.remove(process.env.DCG_INACTIVE_ID);
+            guildMember.roles.add(process.env.SERVER_MEMBER_ID);
+            guildMember.roles.remove(process.env.SERVER_INACTIVE_ID);
             interaction.user.send("You have been verified!");
             return collector.stop();
         } else {
