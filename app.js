@@ -14,7 +14,7 @@ const db = mysql.createPool({
     socketPath: process.env.DB_SOCKET,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: "Discord"
+    database: process.env.DB_NAME
 });
 
 
