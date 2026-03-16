@@ -9,9 +9,14 @@ services:
       - /run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock:rw
     environment:
       - REDIS_HOST=redis
+      - DB_HOST=mysql
+      - DB_NAME=Discord
+      - DB_USER=root
+      - DB_PASSWORD=${DB_PASSWORD}
     depends_on:
       redis:
         condition: service_healthy
+      mysql:
     restart: unless-stopped
 
   redis:
@@ -24,3 +29,17 @@ services:
       timeout: 3s
       start_period: 1s
     restart: unless-stopped
+  
+  mysql:
+    container_name: choomai_mysql
+    image: mysql:8-alpine
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: Discord
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - choomai_db:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  choomai_db:
