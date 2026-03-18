@@ -17,6 +17,7 @@ services:
       redis:
         condition: service_healthy
       mysql:
+        condition: service_started
     restart: unless-stopped
     networks:
       - default
@@ -37,7 +38,7 @@ services:
   
   mysql:
     container_name: choomai_mysql
-    image: mysql:8-alpine
+    image: mysql:8
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: Discord
