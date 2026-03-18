@@ -18,6 +18,9 @@ services:
         condition: service_healthy
       mysql:
     restart: unless-stopped
+    networks:
+      - default
+      - internal
 
   redis:
     container_name: choomai_redis
@@ -29,6 +32,8 @@ services:
       timeout: 3s
       start_period: 1s
     restart: unless-stopped
+    networks:
+      - internal
   
   mysql:
     container_name: choomai_mysql
@@ -40,6 +45,16 @@ services:
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
       - choomai_db:/var/lib/mysql
     restart: unless-stopped
+    networks:
+      - internal
 
 volumes:
   choomai_db:
+
+networks:
+  default:
+    driver: bridge
+  internal:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: internal
