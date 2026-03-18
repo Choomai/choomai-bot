@@ -10,7 +10,8 @@ const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, Tex
 async function execute(interaction, options) {
     const { db, logChannels } = options;
     let channel = interaction.options.getChannel("channel");
-    if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageGuild)) return await interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
+    if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageGuild))
+        return await interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
 
     // Put the channel into cache
     await interaction.guild.channels.fetch(channel.id, { force: true });
