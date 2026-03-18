@@ -31,7 +31,7 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       timeout: 3s
-      start_period: 1s
+      start_period: 3s
     restart: unless-stopped
     networks:
       - internal
@@ -44,13 +44,13 @@ services:
       MYSQL_DATABASE: Discord
     volumes:
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
-      - choomai_db:/var/lib/mysql
+      - db:/var/lib/mysql
     restart: unless-stopped
     networks:
       - internal
 
 volumes:
-  choomai_db:
+  db:
 
 networks:
   default:
