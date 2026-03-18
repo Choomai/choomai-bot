@@ -57,5 +57,4 @@ networks:
     driver: bridge
   internal:
     driver: bridge
-    driver_opts:
-      com.docker.network.bridge.name: internal
+    internal: true
