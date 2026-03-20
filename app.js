@@ -97,7 +97,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
             timestamp: Date.now()
         });
 
-    if (!memberVCStates[newState.member.id]?.joined) return;
+    if (!memberVCStates.get(newState.member.id)?.joined) return;
     
     const storedState = memberVCStates.get(newState.member.id);
     const timePassed = Date.now() - storedState.timestamp;
