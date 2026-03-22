@@ -9,7 +9,7 @@ const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, M
 const { formatTime } = require("./include/time.js");
 const { getLogChannel } = require("./include/get-log-channel.js");
 
-const db = mysql.createPool({
+client.db = mysql.createPool({
     host: process.env.DB_HOST,
     socketPath: process.env.DB_SOCKET,
     user: process.env.DB_USER,
@@ -63,7 +63,7 @@ const client = new Client({
 client.cooldowns = new Collection();
 
 const guildslogChannel = {}, verifyAttempts = {}, voiceChannels = [], memberVCStates = new Map();
-const passing_obj = { verifyAttempts, db, afkQueue, afkNotify, voiceChannels, logChannels: guildslogChannel };
+const passing_obj = { verifyAttempts, afkQueue, afkNotify, voiceChannels, logChannels: guildslogChannel };
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands/");
