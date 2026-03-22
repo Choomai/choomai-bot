@@ -146,8 +146,6 @@ client.on(Events.InteractionCreate, async interaction => {
     };
     timestamps.set(interaction.user.id, now);
 
-    const logChannel = await getLogChannel(client, interaction.guildId, passing_obj);
-
     try {await command.execute(interaction, passing_obj)}
     catch (error) {
         console.error(error);
@@ -158,7 +156,7 @@ client.on(Events.InteractionCreate, async interaction => {
         };
     };
     
-
+    const logChannel = await getLogChannel(client, interaction.guildId, passing_obj);
     const embedLog = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTimestamp()
