@@ -103,27 +103,12 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     const timePassed = Date.now() - storedState.timestamp;
     if (timePassed > 5000) return memberVCStates.delete(newState.member.id);
 
-
-    const logChannel = await getLogChannel(client, newState.guild.id, passing_obj);
-    try {
-        await newState.member.timeout(10 * 60 * 1000, "Join & leave VC too fast");
-        const mutedLog = new EmbedBuilder()
-            .setColor(0x0099FF)
-            .setTimestamp()
-            .setAuthor({ name: `Muted [Auto] | ${newState.member.user.username}`, iconURL: newState.member.user.displayAvatarURL() })
-            .addFields(
-                { name: "User", value: newState.member.toString(), inline: true },
-                { name: "Moderator", value: newState.client.user.toString(), inline: true },
-                { name: "Length", value: "10 minutes", inline: true },
-                { name: "Reason", value: "Join & leave VC in a short timespan" }
-            );
-        logChannel?.send({ embeds: [mutedLog] })
-            .catch(err => console.warn("Failed to send message to the log channel", err));
-
-        newState.member.send("You have been muted for 10 minutes due to joining and leaving voice chat too quickly.")
-            .catch(err => console.warn("Failed to send DM, user might disabled it.", err));
-        memberVCStates.delete(newState.member.id);
-    } catch (err) {console.error(err)}
+    
+    await newState.member.timeout(10 * 60 * 1000, "Join & leave VC too fast");
+    autoMuteLog(client, newState.guild.id, newState.member.user, 10 * 60 * 1000, "Join & leave VC too fast");
+    newState.member.send("You have been muted for 10 minutes due to joining and leaving voice chat too quickly.")
+        .catch(err => console.warn("Failed to send DM, user might disabled it.", err));
+    memberVCStates.delete(newState.member.id);
 })
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -156,17 +141,7 @@ client.on(Events.InteractionCreate, async interaction => {
         };
     };
     
-    const logChannel = await getLogChannel(client, interaction.guildId, passing_obj);
-    const embedLog = new EmbedBuilder()
-        .setColor(0x0099FF)
-        .setTimestamp()
-        .setTitle("Command Logging")
-        .setThumbnail(interaction.user.displayAvatarURL())
-        .addFields(
-            {name: "Issuer", value: interaction.user.toString(), inline: true},
-            {name: "Command", value: `\`/${interaction.commandName}\``, inline: true}
-        );
-    logChannel?.send({ embeds: [embedLog] }).catch(err => console.error("Failed to send message to the log channel", err));
+    commandLog(interaction.client, interaction.guildId, interaction.user, interaction.commandName);
 });
 
 // app.put("/status", (req, res) => {
