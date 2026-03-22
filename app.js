@@ -181,27 +181,4 @@ client.on(Events.MessageCreate, async message => {
     commandLog(message.client, message.guildId, message.author, commandName);
 });
 
-// app.put("/status", (req, res) => {
-//     const emoji = req.headers["x-tag"];
-
-//     client.user.setPresence({ activities: [{ 
-//         name: req.body,
-//         type: 4,
-//         emoji: {
-//             name: emoji,
-//             animated: false
-//         }
-//     }]});
-//     res.send("Status set successfully");
-// })
-
-
-// const socketPath = path.join(__dirname, "status.sock");
-// if (fs.existsSync(socketPath)) {fs.unlinkSync(socketPath);}
-// app.listen(socketPath, () => {
-//     fs.chmodSync(socketPath, "775");
-//     console.log(`Listening at ${socketPath}`);
-// });
-
-
 client.login(process.env.TOKEN);
