@@ -1,6 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
-if (process.env.NODE_ENV != "production") require("dotenv").config({ override: true })
+if (process.env.NODE_ENV != "production") require("dotenv").config({ path: path.join(__dirname, ".env"), override: true })
 const Queue = require("bull");
 const mysql = require("mysql2/promise");
 const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
