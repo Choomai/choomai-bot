@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, SlashCommandSubcommandBuilder, MessageFlags, CommandInteraction } = require("discord.js");
 const { parseTime, formatTime } = require("../include/time.js");
-const { Pool } = require("mysql2/promise")
 const { Queue } = require("bull")
 
 /**
