@@ -56,6 +56,7 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildVoiceStates
     ],
     partials: [Partials.Channel]
@@ -142,6 +143,40 @@ client.on(Events.InteractionCreate, async interaction => {
     };
     
     commandLog(interaction.client, interaction.guildId, interaction.user, interaction.commandName);
+});
+
+client.on(Events.MessageCreate, async message => {
+    // TODO: Add args to command execution
+    // TODO: Clean up the repeated cooldown code
+    if (message.author.bot) return;
+    if (!message.guild) return;
+    if (!message.mentions.has(client.user)) return;
+
+    const commandName = message.content.split(/ +/)[1]?.toLowerCase();
+    const command = message.client.commands.get(commandName);
+    if (!command) return console.error(`No command matching ${commandName} was found.`);
+    if (!command.messageCommand) return message.reply("This command is not available as a message command.");
+
+    const { cooldowns } = message.client;
+    let now = Date.now();
+    if (!cooldowns.has(commandName)) cooldowns.set(commandName, new Collection());
+    let timestamps = cooldowns.get(commandName);
+    let cooldownAmount = command.cooldown ?? 3000;
+    if (timestamps.has(message.author.id)) {
+        let expireTime = timestamps.get(message.author.id) + cooldownAmount;
+        let timeLeft = (expireTime - now) / 1000;
+        if (now < expireTime) return await message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`)
+        else timestamps.delete(message.author.id);
+    };
+    timestamps.set(message.author.id, now);
+
+    try {await command.execute(message, passing_obj)}
+    catch (error) {
+        console.error(error);
+        message.reply("There was an error while executing this command!");
+    };
+
+    commandLog(message.client, message.guildId, message.author, commandName);
 });
 
 // app.put("/status", (req, res) => {

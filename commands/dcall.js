@@ -19,6 +19,7 @@ async function execute(interaction) {
 
 module.exports = {
     cooldown: 30000,
+    messageCommand: true,
     data: new SlashCommandBuilder()
         .setName("dcall")
         .setDescription("Disconnect everyone from the voice channel that the bot owner is in")
