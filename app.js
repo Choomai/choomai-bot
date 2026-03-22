@@ -62,8 +62,8 @@ client.db = mysql.createPool({
     database: process.env.DB_NAME
 });
 
-const guildslogChannel = {}, verifyAttempts = {}, voiceChannels = [], memberVCStates = new Map();
-const passing_obj = { verifyAttempts, afkQueue, afkNotify, voiceChannels, logChannels: guildslogChannel };
+const verifyAttempts = {}, voiceChannels = [], memberVCStates = new Map();
+const passing_obj = { verifyAttempts, afkQueue, afkNotify, voiceChannels };
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands/");
