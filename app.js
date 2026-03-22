@@ -9,15 +9,6 @@ const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, M
 const { formatTime } = require("./include/time.js");
 const { commandLog, autoMuteLog } = require("./include/log.js");
 
-client.db = mysql.createPool({
-    host: process.env.DB_HOST,
-    socketPath: process.env.DB_SOCKET,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-});
-
-
 const redis_conf = {
     host: process.env.REDIS_HOST,
     path: process.env.REDIS_SOCKET
@@ -62,6 +53,13 @@ const client = new Client({
     partials: [Partials.Channel]
 });
 client.cooldowns = new Collection();
+client.db = mysql.createPool({
+    host: process.env.DB_HOST,
+    socketPath: process.env.DB_SOCKET,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
+});
 
 const guildslogChannel = {}, verifyAttempts = {}, voiceChannels = [], memberVCStates = new Map();
 const passing_obj = { verifyAttempts, afkQueue, afkNotify, voiceChannels, logChannels: guildslogChannel };
