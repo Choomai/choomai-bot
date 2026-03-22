@@ -76,5 +76,5 @@ async function autoMuteLog(client, guildId, user, duration, reason) {
 }
 
 module.exports = {
-    commandLog, autoMuteLog
+    commandLog, autoMuteLog, getLogChannel
 };
