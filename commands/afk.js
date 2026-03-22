@@ -6,13 +6,12 @@ const { Queue } = require("bull")
 /**
  * @param {CommandInteraction} interaction 
  * @param {Object} options
- * @param {Pool} options.db
  * @param {Queue} options.afkQueue
  * @param {Queue} options.afkNotify
  * @returns {void}
  */
 async function execute(interaction, options) {
-    const { db, afkQueue, afkNotify } = options;
+    const { afkQueue, afkNotify } = options;
     let rows, response, jobs, interval;
     switch (interaction.options.getSubcommand()) {
         case "set":
@@ -20,7 +19,7 @@ async function execute(interaction, options) {
             interval = parseTime(interaction.options.getString("interval")) ?? 0;
             if (interval && interval < 3600) return await interaction.reply({ content: "Interval must be longer than 1 hour!", flags: MessageFlags.Ephemeral });
             let end_time = Date.now() + time;
-            await db.execute(`
+            await interaction.client.db.execute(`
             INSERT INTO afk_list (user_id, end_time, afk_time, username) 
             VALUES (?, ?, ?, ?) 
             ON DUPLICATE KEY UPDATE end_time = VALUES(end_time), username = VALUES(username), afk_time = VALUES(afk_time)
@@ -46,7 +45,7 @@ async function execute(interaction, options) {
             interval = parseTime(interaction.options.getString("time"));
             if (interval < 108000) return await interaction.reply({ content: "Interval must be longer than 30 minutes!", flags: MessageFlags.Ephemeral });
 
-            [rows] = await db.execute(`SELECT afk_time FROM afk_list WHERE user_id = ?`, [interaction.user.id]);
+            [rows] = await interaction.client.db.execute(`SELECT afk_time FROM afk_list WHERE user_id = ?`, [interaction.user.id]);
             if (rows.length == 0) return await interaction.reply({ content: "You must set an AFK timer first!", flags: MessageFlags.Ephemeral });
 
             let notify_jobs = (await afkNotify.getJobs()).filter(j => j.data.userId == interaction.user.id);
@@ -67,13 +66,13 @@ async function execute(interaction, options) {
 
         case "check":
             const user = interaction.options.getUser("user") ?? interaction.user;
-            [rows] = await db.execute("SELECT end_time FROM afk_list WHERE user_id = ?", [user.id]);
+            [rows] = await interaction.client.db.execute("SELECT end_time FROM afk_list WHERE user_id = ?", [user.id]);
             if (rows.length <= 0) return await interaction.reply(`${user.username} doesn't have an AFK status or has expired.`);
             
             const timeLeft = Math.round(rows[0].end_time - Date.now());
 
             if (timeLeft <= 0) {
-                await db.execute("DELETE FROM afk_list WHERE user_id = ?", [user.id]);
+                await interaction.client.db.execute("DELETE FROM afk_list WHERE user_id = ?", [user.id]);
                 await interaction.reply(`${user.username}'s AFK status has expired.`);
             } else await interaction.reply(`${user.username} has ${formatTime(timeLeft)} left.`);
             break;
@@ -81,12 +80,12 @@ async function execute(interaction, options) {
         case "clear":
             (await afkQueue.getJobs()).filter(j => j.data.userId == interaction.user.id).forEach(j => j.remove());
             (await afkNotify.getJobs()).filter(j => j.data.userId == interaction.user.id).forEach(j => j.remove());
-            await db.execute("DELETE FROM afk_list WHERE user_id = ?", [interaction.user.id]);
+            await interaction.client.db.execute("DELETE FROM afk_list WHERE user_id = ?", [interaction.user.id]);
             await interaction.reply(`AFK status cleared!`);
             break;
 
         case "leaderboard":
-            [rows] = await db.execute("SELECT end_time, username FROM afk_list ORDER BY end_time DESC LIMIT 10");
+            [rows] = await interaction.client.db.execute("SELECT end_time, username FROM afk_list ORDER BY end_time DESC LIMIT 10");
             if (rows.length <= 0) {await interaction.reply("Leaderboard is empty."); break};
 
             response = "## AFK Leaderboard:\n";

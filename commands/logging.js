@@ -3,19 +3,18 @@ const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, Tex
 /**
  * @param {CommandInteraction} interaction 
  * @param {Object} options
- * @param {Pool} options.db
  * @param {TextChannel[]} options.logChannels
  * @returns {void}
  */
 async function execute(interaction, options) {
-    const { db, logChannels } = options;
+    const { logChannels } = options;
     let channel = interaction.options.getChannel("channel");
     if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageGuild))
         return await interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
 
     // Put the channel into cache
     await interaction.guild.channels.fetch(channel.id, { force: true });
-    await db.execute(
+    await interaction.client.db.execute(
         `INSERT INTO log_channels (guild_id, channel_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE channel_id = VALUES(channel_id)`,
         [interaction.guildId, channel.id]
     );
