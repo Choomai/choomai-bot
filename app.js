@@ -41,8 +41,6 @@ afkNotify.process(async (job, done) => {
     done();
 });
 
-// const app = express();
-// app.use(express.text());
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
