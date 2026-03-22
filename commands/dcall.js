@@ -1,15 +1,25 @@
-const { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, MessageFlags } = require("discord.js");
+const { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, MessageFlags, Message } = require("discord.js");
 
 /**
- * @param {CommandInteraction} interaction
+ * @param {CommandInteraction|Message} interaction
  */
 async function execute(interaction) {
-    if (!interaction.memberPermissions.has(PermissionFlagsBits.MoveMembers))
-        return await interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
+    let channel;
+    if (interaction instanceof Message) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.MoveMembers))
+            return await interaction.reply("You do not have permission to use this command.");
 
-    const user = await interaction.guild.members.fetch(process.env.CHOOMAI);
-    const channel = user.voice.channel;
-    if (!channel) return await interaction.reply({ content: "The bot owner (or the specified user) is not in a voice channel.", flags: MessageFlags.Ephemeral});
+        const user = await interaction.guild.members.fetch(process.env.CHOOMAI);
+        channel = user.voice.channel;
+        if (!channel) return await interaction.reply("The bot owner (or the specified user) is not in a voice channel.");
+    } else if (interaction instanceof CommandInteraction) {
+        if (!interaction.memberPermissions.has(PermissionFlagsBits.MoveMembers))
+            return await interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
+
+        const user = interaction.options.getUser("user") || await interaction.guild.members.fetch(process.env.CHOOMAI);
+        channel = user.voice.channel;
+        if (!channel) return await interaction.reply({ content: "The bot owner (or the specified user) is not in a voice channel.", flags: MessageFlags.Ephemeral });
+    }
 
     interaction.reply(`Starting to disconnect everyone from ${channel}.`);
     for (let member of channel.members) {
