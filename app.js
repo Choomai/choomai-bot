@@ -7,7 +7,7 @@ const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, M
 // const express = require("express");
 
 const { formatTime } = require("./include/time.js");
-const { getLogChannel } = require("./include/get-log-channel.js");
+const { commandLog, autoMuteLog } = require("./include/log.js");
 
 client.db = mysql.createPool({
     host: process.env.DB_HOST,
