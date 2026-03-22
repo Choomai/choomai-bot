@@ -4,7 +4,6 @@ if (process.env.NODE_ENV != "production") require("dotenv").config({ path: path.
 const Queue = require("bull");
 const mysql = require("mysql2/promise");
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
-// const express = require("express");
 
 const { version } = require("./package.json");
 const { formatTime } = require("./include/time.js");
