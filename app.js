@@ -3,9 +3,10 @@ const path = require("node:path");
 if (process.env.NODE_ENV != "production") require("dotenv").config({ path: path.join(__dirname, ".env"), override: true })
 const Queue = require("bull");
 const mysql = require("mysql2/promise");
-const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
+const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
 // const express = require("express");
 
+const { version } = require("./package.json");
 const { formatTime } = require("./include/time.js");
 const { commandLog, autoMuteLog } = require("./include/log.js");
 
@@ -79,7 +80,10 @@ for (const file of commandFiles) {
 
 
 
-client.on(Events.ClientReady, () => console.log(`Logged in as ${client.user.tag}.`));
+client.on(Events.ClientReady, () => {
+    console.log(`Logged in as ${client.user.tag}.`);
+    client.user.presence.set({ activities: [{ name: `v${version}`, type: ActivityType.Watching }] })
+});
 
 client.on(Events.GuildMemberAdd, async member => {
     (await getLogChannel(client, member.guild.id, passing_obj))?.send(`${member} has joined the server. Please verify.`);
