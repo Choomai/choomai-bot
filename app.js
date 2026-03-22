@@ -7,7 +7,7 @@ const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, M
 
 const { version } = require("./package.json");
 const { formatTime } = require("./include/time.js");
-const { commandLog, autoMuteLog } = require("./include/log.js");
+const { commandLog, autoMuteLog, getLogChannel } = require("./include/log.js");
 
 const redis_conf = {
     host: process.env.REDIS_HOST,
