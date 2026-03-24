@@ -5,7 +5,7 @@ const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitFi
 /**
  * @param {CommandInteraction} interaction 
  * @param {Object} options
- * @param {Array<{ id: string, hidden: boolean, interval: NodeJS.Timeout }>} options.voiceChannels
+ * @param {Array<{ id: string, owner: GuildMember, hidden: boolean, interval: NodeJS.Timeout }>} options.voiceChannels
  * @returns {void}
  */
 async function execute(interaction, { voiceChannels }) {
@@ -53,17 +53,15 @@ async function execute(interaction, { voiceChannels }) {
                 }
             }, 5 * 60 * 1000);
             voiceChannels.push({
-                id: channel.id, hidden, interval
+                id: channel.id, owner: interaction.member, hidden, interval
             });
             break;
     
         case "add":
             targetUser = interaction.options.getUser("user");
-            selectedChannel = interaction.options.getChannel("vc");
-            if (selectedChannel.type !== ChannelType.GuildVoice)
-                return void interaction.reply({ content: "Wrong type of channel, please specify a VC", flags: MessageFlags.Ephemeral });
-            if (!selectedChannel.permissionsFor(interaction.member).has(PermissionFlagsBits.ManageChannels))
-                return void interaction.reply({ content: "You can't add user to this VC, because you don't have permission to manage it.", flags: MessageFlags.Ephemeral });
+            selectedChannel = voiceChannels.find(channel => channel.owner === interaction.member);
+            selectedChannel = await interaction.client.channels.fetch(selectedChannel.id);
+            if (!selectedChannel) return void interaction.reply({ content: "VC not found, please create one first.", flags: MessageFlags.Ephemeral });
 
             selectedChannel.permissionOverwrites.create(targetUser, {
                 Connect: true,
@@ -74,9 +72,13 @@ async function execute(interaction, { voiceChannels }) {
             break;
 
         case "remove":
-            targetUser = interaction.options.getUser("user");    
-            selectedChannel = interaction.options.getChannel("vc");
-            if (selectedChannel.type !== ChannelType.GuildVoice) return await interaction.reply({ content: "Wrong type of channel, please specify a VC", flags: MessageFlags.Ephemeral });
+            targetUser = interaction.options.getUser("user");
+            selectedChannel = voiceChannels.find(channel => channel.owner === interaction.member);
+            selectedChannel = await interaction.client.channels.fetch(selectedChannel.id);
+            if (!selectedChannel) return void interaction.reply({ content: "VC not found, please create one first.", flags: MessageFlags.Ephemeral });
+
+            if (!selectedChannel.permissionOverwrites.delete(targetUser))
+                return void interaction.reply({ content: `${targetUser} have not been allowed to the VC or an error occurred.`, flags: MessageFlags.Ephemeral });
 
             hidden = voiceChannels.find(channel => channel.id == selectedChannel.id).hidden;
             await interaction.reply({ content: `Disallowed ${targetUser} from the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
@@ -132,11 +134,6 @@ module.exports = {
                 .setDescription("Set the user that are allow to join the private VC")
                 .setRequired(true)
             )
-            .addChannelOption(option => option
-                .setName("vc")
-                .setDescription("Voice channel to modify")
-                .setRequired(true)
-            )
         )
         .addSubcommand(new SlashCommandSubcommandBuilder()
             .setName("remove")
@@ -144,11 +141,6 @@ module.exports = {
             .addUserOption(option => option
                 .setName("user")
                 .setDescription("Set the user that aren't allow to join the private VC")
-                .setRequired(true)
-            )
-            .addChannelOption(option => option
-                .setName("vc")
-                .setDescription("Voice channel to modify")
                 .setRequired(true)
             )
         )
