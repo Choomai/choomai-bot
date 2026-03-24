@@ -31,6 +31,10 @@ async function execute(interaction, { voiceChannels }) {
                         deny: [hidden ? PermissionsBitField.Flags.ViewChannel : PermissionsBitField.Flags.Connect],
                     },
                     {
+                        id: interaction.client.user.id,
+                        allow: [PermissionsBitField.Flags.Connect, PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ManageChannels],
+                    },
+                    {
                         id: interaction.user.id,
                         allow: [PermissionsBitField.Flags.Connect, PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ManageChannels],
                     },
