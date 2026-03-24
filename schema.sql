@@ -1,4 +1,4 @@
-CREATE TABLE IF EXISTS `afk_list` (
+CREATE TABLE IF NOT EXISTS `afk_list` (
     `user_id` varchar(255) NOT NULL,
     `end_time` bigint NOT NULL,
     `afk_time` bigint NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE IF EXISTS `afk_list` (
     PRIMARY KEY (`user_id`)
 );
 
-CREATE TABLE IF EXISTS `log_channels` (
+CREATE TABLE IF NOT EXISTS `log_channels` (
     `guild_id` varchar(32) NOT NULL,
     `channel_id` varchar(32) NOT NULL,
     PRIMARY KEY (`guild_id`),
