@@ -60,8 +60,8 @@ async function execute(interaction, { voiceChannels }) {
         case "add":
             targetUser = interaction.options.getUser("user");
             selectedChannel = voiceChannels.find(channel => channel.owner === interaction.member);
-            selectedChannel = await interaction.client.channels.fetch(selectedChannel.id);
             if (!selectedChannel) return void interaction.reply({ content: "VC not found, please create one first.", flags: MessageFlags.Ephemeral });
+            selectedChannel = await interaction.client.channels.fetch(selectedChannel.id);
 
             selectedChannel.permissionOverwrites.create(targetUser, {
                 Connect: true,
