@@ -18,7 +18,8 @@ async function execute(interaction, { voiceChannels }) {
 
             targetUser = interaction.options.getUser("user");
             targetCategory = interaction.options.getChannel("category");
-            if (targetCategory && targetCategory.type !== ChannelType.GuildCategory) return interaction.editReply({ message: "Invalid channel category!", flags: MessageFlags.Ephemeral });
+            if (targetCategory && targetCategory.type !== ChannelType.GuildCategory)
+                return void interaction.editReply({ message: "Invalid channel category!", flags: MessageFlags.Ephemeral });
 
             const channel = await interaction.guild.channels.create({
                 name: `${interaction.user.username}'s VC`,
@@ -55,7 +56,10 @@ async function execute(interaction, { voiceChannels }) {
         case "add":
             targetUser = interaction.options.getUser("user");
             selectedChannel = interaction.options.getChannel("vc");
-            if (selectedChannel.type !== ChannelType.GuildVoice) return await interaction.reply({ content: "Wrong type of channel, please specify a VC", flags: MessageFlags.Ephemeral });
+            if (selectedChannel.type !== ChannelType.GuildVoice)
+                return void interaction.reply({ content: "Wrong type of channel, please specify a VC", flags: MessageFlags.Ephemeral });
+            if (!selectedChannel.permissionsFor(interaction.member).has(PermissionFlagsBits.ManageChannels))
+                return void interaction.reply({ content: "You can't add user to this VC, because you don't have permission to manage it.", flags: MessageFlags.Ephemeral });
 
             selectedChannel.permissionOverwrites.create(targetUser, {
                 Connect: true,
@@ -75,7 +79,8 @@ async function execute(interaction, { voiceChannels }) {
             break;
 
         case "purge":
-            if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageChannels)) return await interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
+            if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageChannels))
+                return void interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
             await interaction.deferReply();
 
             let removedCounter = 0;
