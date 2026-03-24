@@ -103,11 +103,10 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     const timePassed = Date.now() - storedState.timestamp;
     if (timePassed > 5000) return memberVCStates.delete(newState.member.id);
 
-    
     await newState.member.timeout(10 * 60 * 1000, "Join & leave VC too fast");
     autoMuteLog(client, newState.guild.id, newState.member.user, 10 * 60 * 1000, "Join & leave VC too fast");
     newState.member.send("You have been muted for 10 minutes due to joining and leaving voice chat too quickly.")
-        .catch(err => console.warn("Failed to send DM, user might disabled it.", err));
+        .catch(() => console.warn(`Failed to send DM, ${newState.member.user.username} might disabled it.`));
     memberVCStates.delete(newState.member.id);
 })
 
@@ -116,7 +115,7 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.inGuild()) return interaction.reply("Hey! Don't use these commands here; use them on your server.");
 
     const command = interaction.client.commands.get(interaction.commandName);
-    if (!command) return console.error(`No command matching ${interaction.commandName} was found.`);
+    if (!command) return console.warn(`No command matching ${interaction.commandName} was found.`);
 
     const { cooldowns } = interaction.client;
     let now = Date.now();
@@ -153,7 +152,7 @@ client.on(Events.MessageCreate, async message => {
 
     const commandName = message.content.split(/ +/)[1]?.toLowerCase();
     const command = message.client.commands.get(commandName);
-    if (!command) return console.error(`No command matching ${commandName} was found.`);
+    if (!command) return console.warn(`No command matching ${commandName} was found.`);
     if (!command.messageCommand) return message.reply("This command is not available as a message command.");
 
     const { cooldowns } = message.client;
