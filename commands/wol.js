@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, MessageFlags, CommandInteraction } = require("discord.js");
 const wol = require("wol");
-const dns = require("node:dns");
+const dns = require("node:dns/promises");
+const net = require("node:net");
 
 /**
  * @param {CommandInteraction} interaction 
@@ -10,26 +11,31 @@ async function execute(interaction) {
     const { options } = interaction;
 
     await interaction.deferReply();
-    let ip = options.getString('ip');
-    let port = options.getInteger('port');
-    let mac = options.getString('mac');
+    let ip = options.getString("ip");
+    let port = options.getInteger("port") || 9;
+    let mac = options.getString("mac");
 
-    function wakeDevice(mac, ip, port = 9) {
-        wol.wake(mac, {address: ip, port: port}, err => {
-            if (err) return interaction.editReply({ content: "Failed to send the packet", flags: MessageFlags.Ephemeral });
-            interaction.editReply(`Wake packet sent!`);
-        });
+    async function wakeDevice(mac, ip, port = 9) {
+        try {
+            await wol.wake(mac, {address: ip, port: port});
+        } catch (err) {
+            console.error(err);
+            return void interaction.editReply({ content: "Failed to send the packet.", flags: MessageFlags.Ephemeral });
+        }
     };
-    
-    if (!/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(mac))
-        return await interaction.editReply({ content: "Invalid MAC", flags: MessageFlags.Ephemeral });
 
-    if (!/^(?:[0-255]{1,3}\.){3}[0-255]{1,3}$/.test(ip)) {
-        dns.lookup(ip, 4, (err, address) => {
-            if (err) return interaction.editReply({ content: "Failed to lookup the domain", flags: MessageFlags.Ephemeral });
-            wakeDevice(mac, address, port);
-        });
-    } else wakeDevice(mac, ip, port);
+    if (!/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(mac))
+        return void interaction.editReply({ content: "Invalid MAC", flags: MessageFlags.Ephemeral });
+
+
+    if (net.isIP(ip) !== 0) return wakeDevice(mac, ip, port);
+    try {
+        const address = await dns.lookup(ip, { order: "ipv6first" });
+        await wakeDevice(mac, address, port);
+    } catch (err) {
+        console.error(err);
+        return void interaction.editReply({ content: "Failed to lookup the domain.", flags: MessageFlags.Ephemeral });
+    }
 };
 
 module.exports = {
@@ -43,10 +49,10 @@ module.exports = {
         )
         .addIntegerOption(option => option
             .setName("port")
-            .setDescription("The port to send the packet to")
+            .setDescription("The port to send the packet to. Default is 9")
             .setMinValue(1)
             .setMaxValue(65535)
-            .setRequired(true)
+            .setRequired(false)
         )
         .addStringOption(option => option
             .setName("mac")
