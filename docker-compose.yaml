@@ -5,8 +5,6 @@ services:
     container_name: choomai_bot
     image: ghcr.io/choomai/choomai-bot:latest
     env_file: .env
-    volumes:
-      - /run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock:rw
     environment:
       - REDIS_HOST=redis
       - DB_HOST=mysql
