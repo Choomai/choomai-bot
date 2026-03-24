@@ -5,7 +5,7 @@ const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitFi
 /**
  * @param {CommandInteraction} interaction 
  * @param {Object} options
- * @param {Array<{ id: string, users: [GuildMember, GuildMember], hidden: boolean, interval: NodeJS.Timeout }>} options.voiceChannels
+ * @param {Array<{ id: string, hidden: boolean, interval: NodeJS.Timeout }>} options.voiceChannels
  * @returns {void}
  */
 async function execute(interaction, { voiceChannels }) {
@@ -48,10 +48,7 @@ async function execute(interaction, { voiceChannels }) {
                 }
             }, 5 * 60 * 1000);
             voiceChannels.push({
-                id: channel.id,
-                users: [interaction.user, targetUser],
-                hidden,
-                interval
+                id: channel.id, hidden, interval
             });
             break;
     
