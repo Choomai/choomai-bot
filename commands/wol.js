@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, MessageFlags, CommandInteraction } = require("discord.js");
 const wol = require("wol");
+const dns = require("node:dns");
 
 /**
  * @param {CommandInteraction} interaction 
