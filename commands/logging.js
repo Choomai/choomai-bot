@@ -1,16 +1,13 @@
-const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, TextChannel, CommandInteraction } = require("discord.js");
+const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, CommandInteraction } = require("discord.js");
 
 /**
  * @param {CommandInteraction} interaction 
- * @param {Object} options
- * @param {TextChannel[]} options.logChannels
  * @returns {void}
  */
-async function execute(interaction, options) {
-    const { logChannels } = options;
+async function execute(interaction) {
     let channel = interaction.options.getChannel("channel");
     if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageGuild))
-        return await interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
+        return void interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
 
     // Put the channel into cache
     await interaction.guild.channels.fetch(channel.id, { force: true });
@@ -18,9 +15,8 @@ async function execute(interaction, options) {
         `INSERT INTO log_channels (guild_id, channel_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE channel_id = VALUES(channel_id)`,
         [interaction.guildId, channel.id]
     );
-    logChannels[interaction.guildId] = channel;
 
-    await interaction.reply(`Successfully set the log channel to ${channel}.`);
+    void interaction.reply(`Successfully set the log channel to ${channel}.`);
 }
 
 module.exports = {
