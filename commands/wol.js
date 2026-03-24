@@ -47,17 +47,17 @@ module.exports = {
             .setDescription("The IP/Hostname to send the packet to")
             .setRequired(true)
         )
+        .addStringOption(option => option
+            .setName("mac")
+            .setDescription("Device MAC address to send the packet")
+            .setRequired(true)
+        )
         .addIntegerOption(option => option
             .setName("port")
             .setDescription("The port to send the packet to. Default is 9")
             .setMinValue(1)
             .setMaxValue(65535)
             .setRequired(false)
-        )
-        .addStringOption(option => option
-            .setName("mac")
-            .setDescription("Device MAC address to send the packet")
-            .setRequired(true)
         ),
     execute
 }
