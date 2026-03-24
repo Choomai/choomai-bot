@@ -1,4 +1,4 @@
-// TODO: Add subcommand to change visibilty, remove user from VC
+// TODO: Add subcommand to change visibilty
 
 const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitField, ChannelType, SlashCommandSubcommandBuilder, CommandInteraction, GuildMember } = require("discord.js");
 
