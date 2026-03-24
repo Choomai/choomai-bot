@@ -1,4 +1,4 @@
-const { Client, TextChannel, User } = require("discord.js");
+const { Client, TextChannel, User, EmbedBuilder } = require("discord.js");
 const { formatTime } = require("./time.js");
 const logChannels = {};
 
