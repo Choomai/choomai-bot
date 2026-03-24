@@ -79,7 +79,7 @@ async function execute(interaction, { voiceChannels }) {
             if (selectedChannel.type !== ChannelType.GuildVoice) return await interaction.reply({ content: "Wrong type of channel, please specify a VC", flags: MessageFlags.Ephemeral });
 
             hidden = voiceChannels.find(channel => channel.id == selectedChannel.id).hidden;
-            await interaction.reply({ content: `Disallowed ${targetUser} to the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
+            await interaction.reply({ content: `Disallowed ${targetUser} from the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
             break;
 
         case "purge":
