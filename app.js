@@ -8,6 +8,7 @@ const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, M
 const { version } = require("./package.json");
 const { formatTime } = require("./include/time.js");
 const { commandLog, autoMuteLog, getLogChannel } = require("./include/log.js");
+const { isCooldown } = require("./include/cooldown.js");
 
 const redis_conf = {
     host: process.env.REDIS_HOST,
@@ -117,18 +118,8 @@ client.on(Events.InteractionCreate, async interaction => {
     const command = interaction.client.commands.get(interaction.commandName);
     if (!command) return console.warn(`No command matching ${interaction.commandName} was found.`);
 
-    const { cooldowns } = interaction.client;
-    let now = Date.now();
-    if (!cooldowns.has(interaction.commandName)) cooldowns.set(interaction.commandName, new Collection());
-    let timestamps = cooldowns.get(interaction.commandName);
-    let cooldownAmount = command.cooldown ?? 3000;
-    if (timestamps.has(interaction.user.id)) {
-        let expireTime = timestamps.get(interaction.user.id) + cooldownAmount;
-        let timeLeft = (expireTime - now) / 1000;
-        if (now < expireTime) return await interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)}s before execute this command again.`, flags: MessageFlags.Ephemeral })
-        else timestamps.delete(interaction.user.id);
-    };
-    timestamps.set(interaction.user.id, now);
+    if (timeLeft = isCooldown(interaction.commandName, interaction.user.id))
+        return await interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)}s before execute this command again.`, flags: MessageFlags.Ephemeral })
 
     try {await command.execute(interaction, passing_obj)}
     catch (error) {
@@ -145,7 +136,6 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.on(Events.MessageCreate, async message => {
     // TODO: Add args to command execution
-    // TODO: Clean up the repeated cooldown code
     if (message.author.bot) return;
     if (!message.guild) return;
     if (!message.mentions.has(client.user)) return;
@@ -155,18 +145,8 @@ client.on(Events.MessageCreate, async message => {
     if (!command) return console.warn(`No command matching ${commandName} was found.`);
     if (!command.messageCommand) return message.reply("This command is not available as a message command.");
 
-    const { cooldowns } = message.client;
-    let now = Date.now();
-    if (!cooldowns.has(commandName)) cooldowns.set(commandName, new Collection());
-    let timestamps = cooldowns.get(commandName);
-    let cooldownAmount = command.cooldown ?? 3000;
-    if (timestamps.has(message.author.id)) {
-        let expireTime = timestamps.get(message.author.id) + cooldownAmount;
-        let timeLeft = (expireTime - now) / 1000;
-        if (now < expireTime) return await message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`)
-        else timestamps.delete(message.author.id);
-    };
-    timestamps.set(message.author.id, now);
+    if (timeLeft = isCooldown(commandName, message.author.id))
+        return await message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`);
 
     try {await command.execute(message, passing_obj)}
     catch (error) {
