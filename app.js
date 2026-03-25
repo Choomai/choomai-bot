@@ -60,8 +60,8 @@ client.db = mysql.createPool({
     database: process.env.DB_NAME
 });
 
-const verifyAttempts = {}, voiceChannels = [], memberVCStates = new Map();
-const passing_obj = { verifyAttempts, afkQueue, afkNotify, voiceChannels };
+const verifyAttempts = {}, memberVCStates = new Map();
+const passing_obj = { verifyAttempts, afkQueue, afkNotify };
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands/");

@@ -2,13 +2,15 @@
 
 const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitField, ChannelType, SlashCommandSubcommandBuilder, CommandInteraction, GuildMember } = require("discord.js");
 
+/** @type {Array<{ id: string, owner: GuildMember, hidden: boolean, interval: NodeJS.Timeout }>} */
+const voiceChannels = [];
+
 /**
  * @param {CommandInteraction} interaction 
  * @param {Object} options
- * @param {Array<{ id: string, owner: GuildMember, hidden: boolean, interval: NodeJS.Timeout }>} options.voiceChannels
  * @returns {void}
  */
-async function execute(interaction, { voiceChannels }) {
+async function execute(interaction) {
     let hidden, targetUser, selectedChannel;
 
     switch (interaction.options.getSubcommand()) {
