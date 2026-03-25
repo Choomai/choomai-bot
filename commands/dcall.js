@@ -1,9 +1,10 @@
-const { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, MessageFlags, Message } = require("discord.js");
+const { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, MessageFlags, Message, VoiceChannel } = require("discord.js");
 
 /**
  * @param {CommandInteraction|Message} interaction
  */
 async function execute(interaction) {
+    /** @type {VoiceChannel} */
     let channel;
     if (interaction instanceof Message) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.MoveMembers))
@@ -21,7 +22,6 @@ async function execute(interaction) {
 
     interaction.reply(`Starting to disconnect everyone from ${channel}.`);
     for (let member of channel.members) {
-        // member: Collection<Snowflake, GuildMember>
         void member[1].voice.disconnect(`Disconnect everyone command issued by ${interaction.user}`);
     }
 }
