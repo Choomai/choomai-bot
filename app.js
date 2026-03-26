@@ -7,7 +7,7 @@ const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, M
 
 const { version } = require("./package.json");
 const { formatTime } = require("./include/time.js");
-const { simpleLog, commandLog, autoMuteLog, getLogChannel } = require("./include/log.js");
+const { simpleLog, commandLog, autoMuteLog } = require("./include/log.js");
 const { isCooldown } = require("./include/cooldown.js");
 
 const redis_conf = {
