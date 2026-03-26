@@ -26,7 +26,20 @@ async function getLogChannel(client, guildId) {
 }
 
 /**
- * Logs a command execution to the log channel
+ * Log a simple text message to the log channel
+ * @param {Client} client 
+ * @param {string} guildId 
+ * @param {string} message 
+ * @returns {Promise<void>}
+ */
+async function simpleLog(client, guildId, message) {
+    const channel = await getLogChannel(client, guildId);
+    if (!channel) return;
+    channel.send(message).catch(err => console.error("Failed to send log message to the log channel", err));
+}
+
+/**
+ * Log a command execution to the log channel
  * @param {Client} client 
  * @param {string} guildId 
  * @param {User} issuer 
@@ -76,5 +89,5 @@ async function autoMuteLog(client, guildId, user, duration, reason) {
 }
 
 module.exports = {
-    commandLog, autoMuteLog, getLogChannel
+    simpleLog, commandLog, autoMuteLog, getLogChannel
 };

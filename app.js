@@ -7,7 +7,7 @@ const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, M
 
 const { version } = require("./package.json");
 const { formatTime } = require("./include/time.js");
-const { commandLog, autoMuteLog, getLogChannel } = require("./include/log.js");
+const { simpleLog, commandLog, autoMuteLog, getLogChannel } = require("./include/log.js");
 const { isCooldown } = require("./include/cooldown.js");
 
 const redis_conf = {
@@ -84,7 +84,7 @@ client.on(Events.ClientReady, () => {
 });
 
 client.on(Events.GuildMemberAdd, async member => {
-    (await getLogChannel(client, member.guild.id, passing_obj))?.send(`${member} has joined the server. Please verify.`);
+    simpleLog(client, member.guild.id, `${member} has joined the server. Please verify.`);
 })
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
