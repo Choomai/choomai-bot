@@ -118,7 +118,7 @@ client.on(Events.InteractionCreate, async interaction => {
     const command = interaction.client.commands.get(interaction.commandName);
     if (!command) return console.warn(`No command matching ${interaction.commandName} was found.`);
 
-    if (timeLeft = isCooldown(interaction.commandName, interaction.user.id))
+    if (timeLeft = isCooldown(interaction.commandName, interaction.user.id, command.cooldown))
         return await interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)}s before execute this command again.`, flags: MessageFlags.Ephemeral })
 
     try {await command.execute(interaction, passing_obj)}
