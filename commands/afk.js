@@ -77,16 +77,17 @@ async function execute(interaction, options) {
             break;
 
         case "leaderboard":
-            return void interaction.reply("Subcommand disabled!");
-            [rows] = await interaction.client.db.execute("SELECT end_time, username FROM afk_list ORDER BY end_time DESC LIMIT 10");
-            if (rows.length <= 0) {await interaction.reply("Leaderboard is empty."); break};
+            const delayedJobs = await afkQueue.getDelayed();
+            if (delayedJobs.length <= 0) {await interaction.reply("Leaderboard is empty."); break};
 
             response = "## AFK Leaderboard:\n";
-            for (let i = 0; i < rows.length; i++) {
-                let timeLeft = Math.round(rows[i].end_time - Date.now());
-                response += `${i+1}. ${rows[i].username} - ${formatTime(timeLeft)}\n`;
+            const currentTime = Date.now();
+            delayedJobs.sort((a, b) => (b.data.endTime - a.data.endTime) - (a.data.endTime - currentTime)); // idk but the sort function is AI-generated.
+            for (let i = 0; i < delayedJobs.length; i++) {
+                let timeLeft = Math.round(delayedJobs[i].data.endTime - currentTime);
+                response += `${i+1}. <@${delayedJobs[i].id}> - ${formatTime(timeLeft)}\n`;
             };
-            await interaction.reply(response);
+            interaction.reply({ content: response, allowedMentions: { repliedUser: false } });
             break;
     };
 };
