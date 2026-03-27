@@ -20,7 +20,7 @@ async function execute(interaction) {
         if (!channel) return await interaction.reply({ content: "You are not in a voice channel.", flags: MessageFlags.Ephemeral });
     }
 
-    interaction.reply(`Starting to disconnect everyone from ${channel}.`);
+    interaction.reply({ content: `Starting to disconnect everyone from ${channel}.`, allowedMentions: { repliedUser: false } });
     for (let member of channel.members) {
         void member[1].voice.disconnect(`Disconnect everyone command issued by ${interaction.user}`);
     }
