@@ -1,7 +1,7 @@
 /**
  * Convert 3m, 1h, 7d to miliseconds
  * @param {string} timeStr 
- * @returns {number}
+ * @returns {number} Return miliseconds
  */
 function parseTime(timeStr) {
     if (!timeStr) return;
