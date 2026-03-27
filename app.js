@@ -145,7 +145,7 @@ client.on(Events.MessageCreate, async message => {
     if (!command) return console.warn(`No command matching ${commandName} was found.`);
     if (!command.messageCommand) return message.reply("This command is not available as a message command.");
 
-    if (timeLeft = isCooldown(commandName, message.author.id))
+    if (timeLeft = isCooldown(commandName, message.author.id, command.cooldown))
         return await message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`);
 
     try {await command.execute(message, passing_obj)}
