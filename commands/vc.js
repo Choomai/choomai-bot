@@ -121,6 +121,7 @@ module.exports = {
                 .setName("category")
                 .setDescription("What category to put the VC in")
                 .setRequired(false)
+                .addChannelTypes(ChannelType.GuildCategory)
             )
             .addBooleanOption(option => option
                 .setName("hidden")
