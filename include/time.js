@@ -1,5 +1,5 @@
 /**
- * Convert 3m, 1h, 7d to seconds
+ * Convert 3m, 1h, 7d to miliseconds
  * @param {string} timeStr 
  * @returns {number}
  */
