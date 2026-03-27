@@ -21,7 +21,7 @@ function parseTime(timeStr) {
 }
 
 /**
- * Convert seconds to "?d ?h ?m ?s"
+ * Convert miliseconds to "?d ?h ?m ?s"
  * @param {number} ms 
  * @returns {string}
  */
