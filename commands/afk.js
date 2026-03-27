@@ -16,7 +16,7 @@ async function execute(interaction, options) {
         case "set":
             let time = parseTime(interaction.options.getString("time"));
             interval = parseTime(interaction.options.getString("interval")) ?? 0;
-            if (interval && interval < 3600) return await interaction.reply({ content: "Interval must be longer than 1 hour!", flags: MessageFlags.Ephemeral });
+            if (interval && interval < 3600) return void interaction.reply({ content: "Interval must be longer than 1 hour!", flags: MessageFlags.Ephemeral });
             let endTime = Date.now() + time;
             
             (await afkQueue.getJob(interaction.user.id))?.remove()
@@ -38,7 +38,7 @@ async function execute(interaction, options) {
 
         case "interval":
             interval = parseTime(interaction.options.getString("time"));
-            if (interval < 30 * 60) return await interaction.reply({ content: "Interval must be longer than 30 minutes!", flags: MessageFlags.Ephemeral });
+            if (interval < 30 * 60) return void interaction.reply({ content: "Interval must be longer than 30 minutes!", flags: MessageFlags.Ephemeral });
 
             mainJob = await afkQueue.getJob(interaction.user.id);
             if (!mainJob) return void interaction.reply({ content: "You must set an AFK timer first!", flags: MessageFlags.Ephemeral });
