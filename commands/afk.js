@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, SlashCommandSubcommandBuilder, MessageFlags, CommandInteraction } = require("discord.js");
 const { parseTime, formatTime } = require("../include/time.js");
-const { Queue } = require("bull")
+const { Queue } = require("bullmq");
 
 /**
  * @param {CommandInteraction} interaction 
@@ -11,79 +11,73 @@ const { Queue } = require("bull")
  */
 async function execute(interaction, options) {
     const { afkQueue, afkNotify } = options;
-    let rows, response, jobs, interval;
+    let rows, response, mainJob, notifyJob, interval;
     switch (interaction.options.getSubcommand()) {
         case "set":
             let time = parseTime(interaction.options.getString("time"));
             interval = parseTime(interaction.options.getString("interval")) ?? 0;
             if (interval && interval < 3600) return await interaction.reply({ content: "Interval must be longer than 1 hour!", flags: MessageFlags.Ephemeral });
-            let end_time = Date.now() + time;
-            await interaction.client.db.execute(`
-            INSERT INTO afk_list (user_id, end_time, afk_time, username) 
-            VALUES (?, ?, ?, ?) 
-            ON DUPLICATE KEY UPDATE end_time = VALUES(end_time), username = VALUES(username), afk_time = VALUES(afk_time)
-            `, [interaction.user.id, end_time, time, interaction.user.username]);
-
-            jobs = (await afkQueue.getJobs()).filter(j => j.data.userId == interaction.user.id);
-            jobs.forEach(job => job.remove());
-            if (interval) afkNotify.add(
-                { userId: interaction.user.id },
-                { 
-                    repeat: { 
-                        every: interval,
-                        limit: (time / interval).toFixed()
-                    }
+            let endTime = Date.now() + time;
+            
+            (await afkQueue.getJob(interaction.user.id))?.remove()
+            
+            if (interval !== 0) notifyJob = await afkNotify.add("notify", { userId: interaction.user.id, endTime }, { 
+                repeat: { 
+                    every: interval,
+                    limit: (time / interval).toFixed()
                 }
+            });
+            await afkQueue.add(
+                "afk",
+                { endTime, notifyId: notifyJob?.repeatJobKey },
+                { delay: time, jobId: interaction.user.id, removeOnComplete: true, removeOnFail: true }
             );
-            await afkQueue.add({ userId: interaction.user.id }, { delay: time })
 
-            await interaction.reply(`You are now AFK for ${formatTime(time)}.`);
+            interaction.reply(`You are now AFK for ${formatTime(time)}.`);
             break;
 
         case "interval":
             interval = parseTime(interaction.options.getString("time"));
-            if (interval < 108000) return await interaction.reply({ content: "Interval must be longer than 30 minutes!", flags: MessageFlags.Ephemeral });
+            if (interval < 30 * 60) return await interaction.reply({ content: "Interval must be longer than 30 minutes!", flags: MessageFlags.Ephemeral });
 
-            [rows] = await interaction.client.db.execute(`SELECT afk_time FROM afk_list WHERE user_id = ?`, [interaction.user.id]);
-            if (rows.length == 0) return await interaction.reply({ content: "You must set an AFK timer first!", flags: MessageFlags.Ephemeral });
+            mainJob = await afkQueue.getJob(interaction.user.id);
+            if (!mainJob) return void interaction.reply({ content: "You must set an AFK timer first!", flags: MessageFlags.Ephemeral });
 
-            let notify_jobs = (await afkNotify.getJobs()).filter(j => j.data.userId == interaction.user.id);
-            notify_jobs.forEach(j => j.remove())
+            if (mainJob.data.notifyId) await afkNotify.removeJobScheduler(mainJob.data.notifyId);
+            notifyJob = await afkNotify.add("notify", { userId: interaction.user.id, endTime: mainJob.data.endTime }, { 
+                repeat: {
+                    every: interval,
+                    limit: (mainJob.delay / interval).toFixed()
+                },
+                jobId: interaction.user.id,
+                removeOnComplete: true,
+                removeOnFail: true
+            });
+            await mainJob.updateData({ endTime: mainJob.data.endTime, notifyId: notifyJob.repeatJobKey });
             
-            await afkNotify.add(
-                { userId: interaction.user.id },
-                { 
-                    repeat: { 
-                        every: interval,
-                        limit: (rows[0].afk_time / interval).toFixed()
-                    }
-                }
-            );
-
-            await interaction.reply(`Your AFK timer notify interval is set for ${formatTime(interval)}.`);
+            interaction.reply(`Your AFK timer notify interval is set for ${formatTime(interval)}.`);
             break;
 
         case "check":
             const user = interaction.options.getUser("user") ?? interaction.user;
-            [rows] = await interaction.client.db.execute("SELECT end_time FROM afk_list WHERE user_id = ?", [user.id]);
-            if (rows.length <= 0) return await interaction.reply(`${user.username} doesn't have an AFK status or has expired.`);
-            
-            const timeLeft = Math.round(rows[0].end_time - Date.now());
+            mainJob = await afkQueue.getJob(user.id);
+            if (!mainJob) return void interaction.reply(`${user.username} doesn't have an AFK status or has expired.`);
 
-            if (timeLeft <= 0) {
-                await interaction.client.db.execute("DELETE FROM afk_list WHERE user_id = ?", [user.id]);
-                await interaction.reply(`${user.username}'s AFK status has expired.`);
-            } else await interaction.reply(`${user.username} has ${formatTime(timeLeft)} left.`);
+            const timeLeft = Math.round(mainJob.data.endTime - Date.now());
+            interaction.reply(`${user.username} has ${formatTime(timeLeft)} left.`);
             break;
 
         case "clear":
-            (await afkQueue.getJobs()).filter(j => j.data.userId == interaction.user.id).forEach(j => j.remove());
-            (await afkNotify.getJobs()).filter(j => j.data.userId == interaction.user.id).forEach(j => j.remove());
-            await interaction.client.db.execute("DELETE FROM afk_list WHERE user_id = ?", [interaction.user.id]);
-            await interaction.reply(`AFK status cleared!`);
+            mainJob = await afkQueue.getJob(interaction.user.id);
+            if (!mainJob) return void interaction.reply({ content: "You don't have an AFK status or it has expired.", flags: MessageFlags.Ephemeral });
+
+            if (mainJob.data.notifyId) await afkNotify.removeJobScheduler(mainJob.data.notifyId);
+            await mainJob.remove();
+            interaction.reply(`AFK status cleared!`);
             break;
 
         case "leaderboard":
+            return void interaction.reply("Subcommand disabled!");
             [rows] = await interaction.client.db.execute("SELECT end_time, username FROM afk_list ORDER BY end_time DESC LIMIT 10");
             if (rows.length <= 0) {await interaction.reply("Leaderboard is empty."); break};
 

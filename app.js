@@ -1,7 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 if (process.env.NODE_ENV != "production") require("dotenv").config({ path: path.join(__dirname, ".env"), override: true })
-const Queue = require("bull");
+const { Queue, Worker } = require("bullmq");
 const mysql = require("mysql2/promise");
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
 
@@ -14,32 +14,19 @@ const redis_conf = {
     host: process.env.REDIS_HOST,
     path: process.env.REDIS_SOCKET
 }
-const afkQueue = new Queue("afkQueue", { redis: redis_conf });
-const afkNotify = new Queue("afkNotify", { redis: redis_conf });
-afkQueue.process(async (job, done) => {
-    const { userId } = job.data;
-    let [rows] = await client.db.execute("SELECT end_time FROM afk_list WHERE user_id = ?", [userId]);
-    if (rows.length <= 0) return done();
-
-    const user = await client.users.fetch(userId);
-    if (rows[0].end_time <= Date.now()) {
-        client.db.execute("DELETE FROM afk_list WHERE user_id = ?", [userId]);
-        user.send("Your AFK status has expired.");
-    };
-    let notify_jobs = (await afkNotify.getJobs()).filter(j => j.data?.userId == userId);
-    notify_jobs.forEach(j => j.remove())
-    done();
-});
-afkNotify.process(async (job, done) => {
-    const { userId } = job.data;
-
-    let [rows] = await client.db.execute("SELECT end_time FROM afk_list WHERE user_id = ?", [userId]);
-    if (rows.length <= 0) {job.discard(); return done();};
-
-    const user = await client.users.fetch(userId);
-    user.send(`You have ${formatTime(rows[0].end_time - Date.now())} left.`);
-    done();
-});
+const afkQueue = new Queue("afk", { connection: redis_conf });
+const afkNotify = new Queue("notify", { connection: redis_conf });
+new Worker("afk", async job => {
+    const user = await client.users.fetch(job.id);
+    user.send("Your AFK status has expired.")
+        .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
+    if (job.data.notifyId) await afkNotify.removeJobScheduler(job.data.notifyId);
+}, { connection: redis_conf });
+new Worker("notify", async job => {
+    const user = await client.users.fetch(job.data.userId);
+    user.send(`You have ${formatTime(job.data.endTime - Date.now())} left.`)
+        .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
+}, { connection: redis_conf });
 
 const client = new Client({
     intents: [
