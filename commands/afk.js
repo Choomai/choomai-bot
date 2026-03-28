@@ -3,7 +3,7 @@ const { parseTime, formatTime } = require("../include/time.js");
 const { Queue } = require("bullmq");
 
 /**
- * @param {CommandInteraction} interaction 
+ * @param {CommandInteraction} interaction
  * @param {Object} options
  * @param {Queue} options.afkQueue
  * @param {Queue} options.afkNotify
@@ -11,7 +11,7 @@ const { Queue } = require("bullmq");
  */
 async function execute(interaction, options) {
     const { afkQueue, afkNotify } = options;
-    let rows, response, mainJob, notifyJob, interval;
+    let response, mainJob, notifyJob, interval;
     switch (interaction.options.getSubcommand()) {
         case "set":
             let time = parseTime(interaction.options.getString("time"));
