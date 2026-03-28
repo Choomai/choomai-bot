@@ -209,6 +209,9 @@ server.post("/verify/:uuid/check", async (req, res) => {
 
 
 client.login(process.env.TOKEN);
-server.listen(process.env.LISTEN, () => {
-    console.log(`Web server is running on ${process.env.LISTEN}.`);
-});
+if (process.env.SOCKET_PATH) {
+    server.listen(process.env.SOCKET_PATH, () => console.log(`Web server is running on socket ${process.env.SOCKET_PATH}.`));
+    process.on("SIGINT", () => fs.unlinkSync(path.resolve(process.env.SOCKET_PATH)));
+} else {
+    server.listen(process.env.PORT, () => console.log(`Web server is running on port ${process.env.PORT}.`));
+}
