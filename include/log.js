@@ -14,12 +14,12 @@ const { Pool } = require("mysql2/promise");
  * @returns {Promise<TextChannel|null>}
  */
 async function getLogChannel(client, guildId) {
-    const logChannelId = await client.redis.get("choomai_bot:log_channel:" + guildId);
+    let logChannelId = await client.redis.get("choomai_bot:log_channel:" + guildId);
     if (!logChannelId) {
         const [log_channels_query] = await client.db.query("SELECT guild_id, channel_id FROM log_channels WHERE guild_id = ?", [guildId]);
         if (log_channels_query.length <= 0) return null;
         console.log(`Cache miss for log channel of guild ${guildId}, caching it now.`);
-        await client.redis.setex("choomai_bot:log_channel:" + guildId, log_channels_query[0].channel_id, 6 * 60 * 60);
+        await client.redis.setex("choomai_bot:log_channel:" + guildId, 6 * 60 * 60, log_channels_query[0].channel_id);
         logChannelId = log_channels_query[0].channel_id;
     }
     

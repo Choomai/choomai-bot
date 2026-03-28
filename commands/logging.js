@@ -14,7 +14,7 @@ async function execute(interaction) {
 
     // Put the channel into cache
     await interaction.guild.channels.fetch(channel.id, { force: true });
-    interaction.client.redis.setex("choomai_bot:log_channel:" + interaction.guildId, channel.id, 6 * 60 * 60);
+    interaction.client.redis.setex("choomai_bot:log_channel:" + interaction.guildId, 6 * 60 * 60, channel.id);
     interaction.client.db.execute(
         `INSERT INTO log_channels (guild_id, channel_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE channel_id = VALUES(channel_id)`,
         [interaction.guildId, channel.id]
