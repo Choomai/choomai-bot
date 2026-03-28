@@ -1,6 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
-if (process.env.NODE_ENV != "production") require("@dotenvx/dotenvx").config()
+if (process.env.NODE_ENV != "production") require("@dotenvx/dotenvx").config();
 const { Queue, Worker } = require("bullmq");
 const Redis = require("ioredis");
 const mysql = require("mysql2/promise");
@@ -14,7 +14,7 @@ const { isCooldown } = require("./include/cooldown.js");
 const redisConf = {
     host: process.env.REDIS_HOST,
     path: process.env.REDIS_SOCKET
-}
+};
 const afkQueue = new Queue("afk", { connection: redisConf });
 const afkNotify = new Queue("notify", { connection: redisConf });
 new Worker("afk", async job => {
@@ -76,7 +76,7 @@ client.on(Events.ClientReady, () => {
 
 client.on(Events.GuildMemberAdd, async member => {
     simpleLog(client, member.guild.id, `${member} has joined the server. Please verify.`);
-})
+});
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     if (newState.member.permissions.has(PermissionFlagsBits.ManageChannels)) return;
@@ -100,7 +100,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     newState.member.send("You have been muted for 10 minutes due to joining and leaving voice chat too quickly.")
         .catch(() => console.warn(`Failed to send DM, ${newState.member.user.username} might disabled it.`));
     memberVCStates.delete(newState.member.id);
-})
+});
 
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
