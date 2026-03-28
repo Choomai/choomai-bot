@@ -209,6 +209,6 @@ server.post("/verify/:uuid/check", async (req, res) => {
 
 
 client.login(process.env.TOKEN);
-server.listen(process.env.PORT, () => {
-    console.log(`Web server is running on port ${process.env.PORT}.`);
+server.listen(process.env.LISTEN, () => {
+    console.log(`Web server is running on port ${process.env.LISTEN}.`);
 });
