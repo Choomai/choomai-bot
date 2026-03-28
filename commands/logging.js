@@ -16,7 +16,7 @@ async function execute(interaction) {
         [interaction.guildId, channel.id]
     );
 
-    void interaction.reply(`Successfully set the log channel to ${channel}.`);
+    interaction.reply(`Successfully set the log channel to ${channel}.`);
 }
 
 module.exports = {
