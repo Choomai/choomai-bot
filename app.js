@@ -214,7 +214,10 @@ if (process.env.SOCKET_PATH) {
         fs.accessSync(process.env.SOCKET_PATH, fs.constants.R_OK | fs.constants.W_OK);
         fs.unlinkSync(process.env.SOCKET_PATH);
     } catch { /* No existing socket, or failed to access/unlink, just continue */ }
-    server.listen(process.env.SOCKET_PATH, () => console.log(`Web server is running on socket ${process.env.SOCKET_PATH}.`));
+    server.listen(process.env.SOCKET_PATH, () => {
+        console.log(`Web server is running on socket ${process.env.SOCKET_PATH}.`);
+        fs.chmodSync(process.env.SOCKET_PATH, 775);
+    });
 } else {
     server.listen(process.env.PORT, () => console.log(`Web server is running on port ${process.env.PORT}.`));
 }
