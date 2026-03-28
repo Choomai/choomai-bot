@@ -18,12 +18,14 @@ const afkQueue = new Queue("afk", { connection: redis_conf });
 const afkNotify = new Queue("notify", { connection: redis_conf });
 new Worker("afk", async job => {
     const user = await client.users.fetch(job.id);
+    console.log(`AFK status expired for user ${user.username}.`);
     user.send("Your AFK status has expired.")
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
     if (job.data.notifyId) await afkNotify.removeJobScheduler(job.data.notifyId);
 }, { connection: redis_conf });
 new Worker("notify", async job => {
     const user = await client.users.fetch(job.data.userId);
+    console.log(`Sending AFK notification to user ${user.username}.`);
     user.send(`You have ${formatTime(job.data.endTime - Date.now())} left.`)
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
 }, { connection: redis_conf });
@@ -108,6 +110,7 @@ client.on(Events.InteractionCreate, async interaction => {
     if (timeLeft = isCooldown(interaction.commandName, interaction.user.id, command.cooldown))
         return await interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)}s before execute this command again.`, flags: MessageFlags.Ephemeral })
 
+    console.log(`${interaction.user.username} in #${interaction.channel.name} called /${interaction.commandName}.`);
     try {await command.execute(interaction, passing_obj)}
     catch (error) {
         console.error(error);
@@ -135,6 +138,7 @@ client.on(Events.MessageCreate, async message => {
     if (timeLeft = isCooldown(commandName, message.author.id, command.cooldown))
         return await message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`);
 
+    console.log(`${message.author.username} in #${message.channel.name} called /${commandName}.`);
     try {await command.execute(message, passing_obj)}
     catch (error) {
         console.error(error);
