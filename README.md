@@ -1,6 +1,6 @@
 # Choomai Bot
 
-<!-- README generated with Claude (Anthropic) -->
+<!-- README generated with Claude (Anthropic) and Github Copilot -->
 
 A Discord bot built with [discord.js](https://discord.js.org/).
 
@@ -27,7 +27,8 @@ Create a `.env` file in the project root:
 ```env
 TOKEN=your_discord_bot_token
 CLIENT_ID=your_application_client_id
-SERVER_ID=your_guild_id
+SERVER_ID=your_main_server_id
+SERVER_MEMBER_ID=your_member_role_id
 
 DB_HOST=127.0.0.1        # or leave unset to use DB_SOCKET
 DB_SOCKET=/run/mysqld/mysqld.sock
@@ -37,6 +38,12 @@ DB_NAME=Discord
 
 REDIS_HOST=127.0.0.1     # or leave unset to use REDIS_SOCKET
 REDIS_SOCKET=/var/run/redis/redis.sock
+
+PORT=6969                # or leave unset to use SOCKET_PATH
+SOCKET_PATH=/app/web.sock
+
+TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
 ```
 
 ### 3. Initialize the database
@@ -68,7 +75,10 @@ A `docker-compose.yaml` is provided that bundles the bot, MySQL 8, and Redis tog
 # DB_PASSWORD=your_db_password
 # TOKEN=your_discord_bot_token
 # CLIENT_ID=your_application_client_id
-# SERVER_ID=your_guild_id
+# SERVER_ID=your_main_server_id
+# SERVER_MEMBER_ID=your_member_role_id
+# TURNSTILE_SITE_KEY=1x00000000000000000000AA
+# TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
 
 docker compose up -d
 ```
@@ -114,6 +124,16 @@ Sets the channel where the bot will log command usage and automatic moderation a
 
 ---
 
+### `/mvall <from> <to>`
+
+Moves all members from one voice channel to another.
+
+- `from`: The voice channel to move members from
+- `to`: The voice channel to move members to
+- Requires **Move Members** permission.
+
+---
+
 ### `/ping`
 
 Replies with `Pong!`. Useful for checking if the bot is alive.
@@ -131,6 +151,18 @@ Displays the live status of Choomai infrastructure, including:
 - Website (nginx), VPN, and Minecraft server reachability
 
 Has a 10 second cooldown.
+
+---
+
+### `/verify`
+
+Initiates a member verification process to gain access to the server.
+
+- Generates a unique verification link and sends it via DM
+- Requires completing a Cloudflare Turnstile CAPTCHA challenge
+- Automatically assigns the Member role upon successful verification
+- Verification links expire after 10 minutes
+- Each member can only verify 3 times before being disabled for 6 hours
 
 ---
 
@@ -161,7 +193,7 @@ Sends a Wake-on-LAN magic packet to a device on your network.
 
 ## Auto-moderation
 
-The bot automatically times out members who join and leave a voice channel within 5 seconds, issuing a **10 minute timeout**. Members with the **Manage Channels** permission are exempt. The action is logged to the configured log channel.
+The bot automatically times out members who join and leave a voice channel within 5 seconds, issuing a **10 minutes timeout**. Members with the **Manage Channels** permission are exempt. The action is logged to the configured log channel.
 
 <!-- ---
 
