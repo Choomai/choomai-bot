@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 if (process.env.NODE_ENV != "production") require("@dotenvx/dotenvx").config();
 const { Queue, Worker } = require("bullmq");
+const express = require("express");
 const Redis = require("ioredis");
 const mysql = require("mysql2/promise");
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
@@ -50,6 +51,10 @@ client.db = mysql.createPool({
     database: process.env.DB_NAME
 });
 client.redis = new Redis(redisConf);
+const server = express();
+server.use(express.json());
+server.enable("trust proxy");
+server.set("view engine", "ejs");
 
 const memberVCStates = new Map();
 const passingObj = { afkQueue, afkNotify };
@@ -150,4 +155,59 @@ client.on(Events.MessageCreate, async message => {
     commandLog(message.client, message.guildId, message.author, commandName);
 });
 
+
+server.get("/verify/:uuid", async (req, res) => {
+    const uuid = req.params.uuid;
+    if (!/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(uuid)) {
+        res.setHeader("Content-Type", "text/plain");
+        return res.status(400).send("Invalid UUID format.");
+    }
+    if (!await client.redis.get(`choomai_bot:verify:${uuid}`)) return res.status(404).send("UUID not found or expired.");
+
+    res.render("verify", { siteKey: process.env.TURNSTILE_SITE_KEY });
+});
+
+server.post("/verify/:uuid/check", async (req, res) => {
+    const { token } = req.body;
+    const uuid = req.params.uuid;
+    if (!uuid || !token) return res.status(400).json({ success: false, message: "Missing uuid or token." });
+    if (!/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(uuid))
+        return res.status(400).json({ success: false, message: "Invalid UUID format." });
+
+    const userData = JSON.parse(await client.redis.get(`choomai_bot:verify:${uuid}`));
+    if (!userData) return res.status(404).json({ success: false, message: "UUID not found or expired." });
+
+    try {
+        const turnstileResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                secret: process.env.TURNSTILE_SECRET_KEY,
+                response: token,
+                remoteip: req.ip
+            })
+        });
+        const turnstileResult = await turnstileResponse.json();
+        if (!turnstileResult.success) return res.status(403).json({ success: false, message: "Token verification failed." });
+
+        const guild = await client.guilds.fetch(userData.guildId);
+        const role = await guild.roles.fetch(process.env.SERVER_MEMBER_ID);
+        if (!role) return res.status(500).json({ success: false, message: "Member role not found. Please contact an administrator." });
+
+        const member = await guild.members.fetch(userData.userId);
+        await member.roles.add(role, "User passed Turnstile verification");
+        await client.redis.del(`choomai_bot:verify:${uuid}`, `choomai_bot:verify:${userData.userId}:attempts`);
+
+        console.log(`User ${member.user.tag} has been verified and given the member role.`);
+        return res.json({ success: true, message: "Verification successful. You can now access the server." });
+    } catch (error) {
+        console.error("Error verifying Turnstile token:", error);
+        return res.status(500).json({ success: false, message: "Error verifying token." });
+    };
+});
+
+
 client.login(process.env.TOKEN);
+server.listen(process.env.PORT, () => {
+    console.log(`Web server is running on port ${process.env.PORT}.`);
+});
