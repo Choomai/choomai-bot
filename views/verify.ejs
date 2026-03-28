@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="dark">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #2c2f33;
+            margin: 0;
+            overflow-y: hidden;
+        }
+    </style>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script>
+        function onSuccess(token) {
+            fetch(`${window.location.pathname}/check`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.close();
+                } else {
+                    alert("Verification failed: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error during verification:", error);
+                alert("An error occurred during verification. Please try again.");
+            });
+        }
+    </script>
+    <title>Discord Verification</title>
+</head>
+<body>
+    <h1>Discord Verification</h1>
+    <p>Please complete the CAPTCHA below to verify your account and gain access to the server.</p>
+    <div class="cf-turnstile" data-sitekey="<%= siteKey %>" data-theme="dark" data-size="normal" data-callback="onSuccess"></div>
+</body>
+</html>
