@@ -13,12 +13,13 @@ async function execute(interaction) {
     if (attempts && parseInt(attempts) >= 3) {
         const ttlLeft = await interaction.client.redis.ttl(`choomai_bot:verify:${interaction.user.id}:attempts`);
         return void interaction.reply({
-            content: `You have reached the maximum verification attempts. Please try again in ${formatTime(Date.now() +ttlLeft * 1000)}.`,
+            content: `You have reached the maximum verification attempts. Please try again in ${formatTime(ttlLeft * 1000)}.`,
             flags: MessageFlags.Ephemeral
         });
     };
 
     await interaction.client.redis.incr(`choomai_bot:verify:${interaction.user.id}:attempts`);
+    await interaction.client.redis.expire(`choomai_bot:verify:${interaction.user.id}:attempts`, 6 * 60 * 60);
 
     const uuid = crypto.randomUUID();
     await interaction.client.redis.setex(
