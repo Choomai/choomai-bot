@@ -157,7 +157,13 @@ client.on(Events.MessageCreate, async message => {
     commandLog(message.client, message.guildId, message.author, commandName);
 });
 
-
+/**
+ * Verification flow:
+ * User call command -> generate UUID -> store in Redis with userId and guildId -> DM verification link with UUID to user
+ * GET /verify/:uuid - Serves the verification page with the Turnstile widget.
+ * POST /verify/:uuid/check - Handles the form submission from the verification page.
+ * Validates the UUID and token, verifies the Turnstile token with Cloudflare, and if successful, assigns the member role to the user.
+ */
 server.get("/verify/:uuid", async (req, res) => {
     const uuid = req.params.uuid;
     if (!/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(uuid)) {
