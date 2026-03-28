@@ -210,8 +210,11 @@ server.post("/verify/:uuid/check", async (req, res) => {
 
 client.login(process.env.TOKEN);
 if (process.env.SOCKET_PATH) {
+    try {
+        fs.accessSync(process.env.SOCKET_PATH, fs.constants.R_OK | fs.constants.W_OK);
+        fs.unlinkSync(process.env.SOCKET_PATH);
+    } catch { /* No existing socket, or failed to access/unlink, just continue */ }
     server.listen(process.env.SOCKET_PATH, () => console.log(`Web server is running on socket ${process.env.SOCKET_PATH}.`));
-    process.on("SIGINT", () => fs.unlinkSync(path.resolve(process.env.SOCKET_PATH)));
 } else {
     server.listen(process.env.PORT, () => console.log(`Web server is running on port ${process.env.PORT}.`));
 }
