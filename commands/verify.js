@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, CommandInteraction, MessageFlags, PermissionFlagsBits } = require("discord.js");
+const { Client, SlashCommandBuilder, CommandInteraction, MessageFlags, PermissionFlagsBits } = require("discord.js");
 const crypto = require("node:crypto");
 const { formatTime } = require("../include/time.js");
 const { Redis } = require("ioredis");
