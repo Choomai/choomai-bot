@@ -16,21 +16,6 @@ const redisConf = {
     host: process.env.REDIS_HOST,
     path: process.env.REDIS_SOCKET
 };
-const afkQueue = new Queue("afk", { connection: redisConf });
-const afkNotify = new Queue("notify", { connection: redisConf });
-new Worker("afk", async job => {
-    const user = await client.users.fetch(job.id);
-    console.log(`AFK status expired for user ${user.username}.`);
-    user.send("Your AFK status has expired.")
-        .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
-    if (job.data.notifyId) await afkNotify.removeJobScheduler(job.data.notifyId);
-}, { connection: redisConf });
-new Worker("notify", async job => {
-    const user = await client.users.fetch(job.data.userId);
-    console.log(`Sending AFK notification to user ${user.username}.`);
-    user.send(`You have ${formatTime(job.data.endTime - Date.now())} left.`)
-        .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
-}, { connection: redisConf });
 
 const client = new Client({
     intents: [
@@ -156,6 +141,30 @@ client.on(Events.MessageCreate, async message => {
 
     commandLog(message.client, message.guildId, message.author, commandName);
 });
+
+/**
+ * AFK flow:
+ * User set AFK period (with optional notify interval) -> calculate AFK end time -> store in Redis with userId as key
+ * Schedule a job in afkQueue to trigger at AFK end time (with userId as data)
+ * If notify interval is set -> schedule recurring jobs in afkNotify to trigger at each notify interval (with userId and AFK end time as data)
+ * When afkQueue job runs (means AFK expired) -> send DM to user that AFK has expired -> remove any remaining notify jobs for that user
+ */
+const afkQueue = new Queue("afk", { connection: redisConf });
+const afkNotify = new Queue("notify", { connection: redisConf });
+new Worker("afk", async job => {
+    const user = await client.users.fetch(job.id);
+    console.log(`AFK status expired for user ${user.username}.`);
+    user.send("Your AFK status has expired.")
+        .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
+    if (job.data.notifyId) await afkNotify.removeJobScheduler(job.data.notifyId);
+}, { connection: redisConf });
+new Worker("notify", async job => {
+    const user = await client.users.fetch(job.data.userId);
+    console.log(`Sending AFK notification to user ${user.username}.`);
+    user.send(`You have ${formatTime(job.data.endTime - Date.now())} left.`)
+        .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
+}, { connection: redisConf });
+
 
 /**
  * Verification flow:
