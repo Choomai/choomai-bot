@@ -13,7 +13,7 @@ async function execute(interaction) {
     if (attempts && parseInt(attempts) >= 3) {
         const ttlLeft = await interaction.client.redis.ttl(`choomai_bot:verify:${interaction.user.id}:attempts`);
         return void interaction.reply({
-            content: `You have reached the maximum verification attempts. Please try again in ${formatTime(ttlLeft)}.`,
+            content: `You have reached the maximum verification attempts. Please try again in ${formatTime(Date.now() +ttlLeft * 1000)}.`,
             flags: MessageFlags.Ephemeral
         });
     };
