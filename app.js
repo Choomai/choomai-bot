@@ -85,7 +85,9 @@ client.on(Events.GuildMemberAdd, async member => {
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     if (newState.member.permissions.has(PermissionFlagsBits.ManageChannels)) return;
-    if ((oldState.channelId !== null) === (newState.channelId !== null)) return; // Sanity check I guess, XOR btw
+    // Checking if either joining or leaving instead of just switching channels
+    // Because switching channels is not considered abuse and can cause false positives if we check for it
+    if ((oldState.channelId !== null) === (newState.channelId !== null)) return;
 
     if (!oldState.channelId && newState.channelId) // Store timestamp when join
         return memberVCStates.set(newState.member.id, { 
