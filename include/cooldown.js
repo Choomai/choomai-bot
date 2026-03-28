@@ -9,7 +9,7 @@ const cooldowns = new Collection();
  * @param {number} cooldownAmount Cooldown time in milliseconds, default is 3000 (3 seconds).
  * @returns {number} Return the time left in seconds if the user is in cooldown, otherwise return 0.
  */
-function isCooldown(commandName, userId, cooldownAmount = 3000) {
+function isOnCooldown(commandName, userId, cooldownAmount = 3000) {
     let now = Date.now();
     if (!cooldowns.has(commandName)) cooldowns.set(commandName, new Collection());
     let timestamps = cooldowns.get(commandName);
@@ -24,5 +24,5 @@ function isCooldown(commandName, userId, cooldownAmount = 3000) {
 }
 
 module.exports = {
-    isCooldown
+    isOnCooldown
 };
