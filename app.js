@@ -11,25 +11,25 @@ const { formatTime } = require("./include/time.js");
 const { simpleLog, commandLog, autoMuteLog } = require("./include/log.js");
 const { isCooldown } = require("./include/cooldown.js");
 
-const redis_conf = {
+const redisConf = {
     host: process.env.REDIS_HOST,
     path: process.env.REDIS_SOCKET
 }
-const afkQueue = new Queue("afk", { connection: redis_conf });
-const afkNotify = new Queue("notify", { connection: redis_conf });
+const afkQueue = new Queue("afk", { connection: redisConf });
+const afkNotify = new Queue("notify", { connection: redisConf });
 new Worker("afk", async job => {
     const user = await client.users.fetch(job.id);
     console.log(`AFK status expired for user ${user.username}.`);
     user.send("Your AFK status has expired.")
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
     if (job.data.notifyId) await afkNotify.removeJobScheduler(job.data.notifyId);
-}, { connection: redis_conf });
+}, { connection: redisConf });
 new Worker("notify", async job => {
     const user = await client.users.fetch(job.data.userId);
     console.log(`Sending AFK notification to user ${user.username}.`);
     user.send(`You have ${formatTime(job.data.endTime - Date.now())} left.`)
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
-}, { connection: redis_conf });
+}, { connection: redisConf });
 
 const client = new Client({
     intents: [
@@ -49,10 +49,10 @@ client.db = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
-client.redis = new Redis(redis_conf);
+client.redis = new Redis(redisConf);
 
 const verifyAttempts = {}, memberVCStates = new Map();
-const passing_obj = { verifyAttempts, afkQueue, afkNotify };
+const passingObj = { verifyAttempts, afkQueue, afkNotify };
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands/");
@@ -113,7 +113,7 @@ client.on(Events.InteractionCreate, async interaction => {
         return await interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)}s before execute this command again.`, flags: MessageFlags.Ephemeral })
 
     console.log(`${interaction.user.username} in #${interaction.channel.name} called /${interaction.commandName}.`);
-    try {await command.execute(interaction, passing_obj)}
+    try {await command.execute(interaction, passingObj)}
     catch (error) {
         console.error(error);
         if (interaction.replied || interaction.deferred) {
@@ -141,7 +141,7 @@ client.on(Events.MessageCreate, async message => {
         return await message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`);
 
     console.log(`${message.author.username} in #${message.channel.name} called /${commandName}.`);
-    try {await command.execute(message, passing_obj)}
+    try {await command.execute(message, passingObj)}
     catch (error) {
         console.error(error);
         message.reply("There was an error while executing this command!");
