@@ -5,7 +5,7 @@ const net = require("node:net");
 
 /**
  * @param {CommandInteraction} interaction 
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function execute(interaction) {
     const { options } = interaction;

@@ -33,7 +33,7 @@ async function getSystemStatus() {
 
 /**
  * @param {CommandInteraction} interaction 
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function execute(interaction) {
     await interaction.deferReply();

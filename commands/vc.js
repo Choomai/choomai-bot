@@ -7,7 +7,7 @@ const voiceChannels = [];
 
 /**
  * @param {CommandInteraction} interaction
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function execute(interaction) {
     let hidden, targetUser, selectedChannel;

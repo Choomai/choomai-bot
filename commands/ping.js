@@ -2,7 +2,7 @@ const { SlashCommandBuilder, CommandInteraction } = require("discord.js");
 
 /**
  * @param {CommandInteraction} interaction 
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function execute(interaction) {
     await interaction.reply("Pong!");

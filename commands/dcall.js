@@ -2,6 +2,7 @@ const { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, MessageFla
 
 /**
  * @param {CommandInteraction|Message} interaction
+ * @returns {Promise<void>}
  */
 async function execute(interaction) {
     /** @type {VoiceChannel} */
