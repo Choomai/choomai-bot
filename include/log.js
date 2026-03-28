@@ -42,7 +42,8 @@ async function getLogChannel(client, guildId) {
 async function simpleLog(client, guildId, message) {
     const channel = await getLogChannel(client, guildId);
     if (!channel) return;
-    channel.send(message).catch(err => console.error("Failed to send log message to the log channel", err));
+    channel.send({ content: message, allowedMentions: { repliedUser: false } })
+        .catch(err => console.error("Failed to send log message to the log channel", err));
 }
 
 /**

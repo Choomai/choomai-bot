@@ -199,7 +199,7 @@ server.post("/verify/:uuid/check", async (req, res) => {
         await client.redis.del(`choomai_bot:verify:${uuid}`, `choomai_bot:verify:${userData.userId}:attempts`);
 
         console.log(`User ${member.user.tag} has been verified and given the member role.`);
-        simpleLog(client, userData.guildId, `${member} has been verified and given the member role.`);
+        simpleLog(client, userData.guildId, `${member} has been verified and given the ${role} role.`);
         return res.json({ success: true, message: "Verification successful. You can now access the server." });
     } catch (error) {
         console.error("Error verifying Turnstile token:", error);
