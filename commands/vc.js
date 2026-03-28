@@ -6,8 +6,7 @@ const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitFi
 const voiceChannels = [];
 
 /**
- * @param {CommandInteraction} interaction 
- * @param {Object} options
+ * @param {CommandInteraction} interaction
  * @returns {void}
  */
 async function execute(interaction) {
