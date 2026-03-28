@@ -9,9 +9,13 @@ async function execute(interaction) {
     if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageGuild))
         return void interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
 
+    if (channel.type !== ChannelType.GuildText)
+        return void interaction.reply({ content: "Invalid channel type!", flags: MessageFlags.Ephemeral });
+
     // Put the channel into cache
     await interaction.guild.channels.fetch(channel.id, { force: true });
-    await interaction.client.db.execute(
+    interaction.client.redis.setex("choomai_bot:log_channel:" + interaction.guildId, channel.id, 6 * 60 * 60);
+    interaction.client.db.execute(
         `INSERT INTO log_channels (guild_id, channel_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE channel_id = VALUES(channel_id)`,
         [interaction.guildId, channel.id]
     );

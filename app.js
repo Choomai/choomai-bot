@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 if (process.env.NODE_ENV != "production") require("@dotenvx/dotenvx").config()
 const { Queue, Worker } = require("bullmq");
+const Redis = require("ioredis");
 const mysql = require("mysql2/promise");
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
 
@@ -48,6 +49,7 @@ client.db = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
+client.redis = new Redis(redis_conf);
 
 const verifyAttempts = {}, memberVCStates = new Map();
 const passing_obj = { verifyAttempts, afkQueue, afkNotify };

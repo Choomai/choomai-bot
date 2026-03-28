@@ -1,27 +1,34 @@
-const { Client, TextChannel, User, EmbedBuilder } = require("discord.js");
+const { Client, TextChannel, User, EmbedBuilder, ChannelType } = require("discord.js");
 const { formatTime } = require("./time.js");
-const logChannels = {};
+const Redis = require("ioredis");
+const { Pool } = require("mysql2/promise");
 
 /** 
  * Query the log channel from guildId
  * Look at the cached logChannels, if not found then search it in the DB.
  * If neither is found, return null
  * @param {Client} client
- * @param {string} guildId 
+ * @param {Redis} client.redis
+ * @param {Pool} client.db
+ * @param {string} guildId
  * @returns {Promise<TextChannel|null>}
  */
 async function getLogChannel(client, guildId) {
-    if (logChannels[guildId]) return logChannels[guildId];
-
-    const [log_channels_query] = await client.db.query("SELECT guild_id, channel_id FROM log_channels WHERE guild_id = ?", [guildId]);
-    if (log_channels_query.length <= 0) return null;
+    const logChannelId = await client.redis.get("choomai_bot:log_channel:" + guildId);
+    if (!logChannelId) {
+        const [log_channels_query] = await client.db.query("SELECT guild_id, channel_id FROM log_channels WHERE guild_id = ?", [guildId]);
+        if (log_channels_query.length <= 0) return null;
+        console.log(`Cache miss for log channel of guild ${guildId}, caching it now.`);
+        await client.redis.setex("choomai_bot:log_channel:" + guildId, log_channels_query[0].channel_id, 6 * 60 * 60);
+        logChannelId = log_channels_query[0].channel_id;
+    }
     
-    const channel = await client.channels.fetch(log_channels_query[0].channel_id);
-    if (!channel?.isTextBased()) {
+    const channel = await client.channels.fetch(logChannelId);
+    if (channel.type !== ChannelType.GuildText) {
         console.error(`Invalid log channel type for guild ${guildId}`);
+        client.redis.del("choomai_bot:log_channel:" + guildId);
         return null;
     }
-    logChannels[guildId] = channel;
     return channel;
 }
 
