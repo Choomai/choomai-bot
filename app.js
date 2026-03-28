@@ -51,8 +51,8 @@ client.db = mysql.createPool({
 });
 client.redis = new Redis(redisConf);
 
-const verifyAttempts = {}, memberVCStates = new Map();
-const passingObj = { verifyAttempts, afkQueue, afkNotify };
+const memberVCStates = new Map();
+const passingObj = { afkQueue, afkNotify };
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands/");
