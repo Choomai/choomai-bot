@@ -1,9 +1,12 @@
 const { SlashCommandBuilder, CommandInteraction, MessageFlags, PermissionFlagsBits } = require("discord.js");
 const crypto = require("node:crypto");
 const { formatTime } = require("../include/time.js");
+const { Redis } = require("ioredis");
 
 /**
- * @param {CommandInteraction} interaction 
+ * @typedef {Client & { redis: Redis }} ExtendedClient
+ * @param {CommandInteraction & { client: ExtendedClient }} interaction
+ * @returns {Promise<void>}
  */
 async function execute(interaction) {
     if (interaction.member.roles.cache.has(process.env.SERVER_MEMBER_ID) || interaction.memberPermissions.has(PermissionFlagsBits.Administrator))

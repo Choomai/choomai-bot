@@ -1,7 +1,10 @@
-const { SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, CommandInteraction } = require("discord.js");
+const { Client, SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, CommandInteraction } = require("discord.js");
+const { Redis } = require("ioredis");
+const { Pool } = require("mysql2/promise");
 
 /**
- * @param {CommandInteraction} interaction 
+ * @typedef {Client & { redis: Redis, db: Pool }} ExtendedClient
+ * @param {CommandInteraction & { client: ExtendedClient }} interaction
  * @returns {void}
  */
 async function execute(interaction) {

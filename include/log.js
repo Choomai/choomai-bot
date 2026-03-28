@@ -1,15 +1,14 @@
 const { Client, TextChannel, User, EmbedBuilder, ChannelType } = require("discord.js");
 const { formatTime } = require("./time.js");
-const Redis = require("ioredis");
+const { Redis } = require("ioredis");
 const { Pool } = require("mysql2/promise");
 
 /** 
  * Query the log channel from guildId
  * Look at the cached logChannels, if not found then search it in the DB.
  * If neither is found, return null
- * @param {Client} client
- * @param {Redis} client.redis
- * @param {Pool} client.db
+ * @typedef {Client & { redis: Redis, db: Pool }} ExtendedClient
+ * @param {ExtendedClient} client
  * @param {string} guildId
  * @returns {Promise<TextChannel|null>}
  */
