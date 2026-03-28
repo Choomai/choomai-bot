@@ -10,7 +10,7 @@ const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, M
 const { version } = require("./package.json");
 const { formatTime } = require("./include/time.js");
 const { simpleLog, commandLog, autoMuteLog } = require("./include/log.js");
-const { isCooldown } = require("./include/cooldown.js");
+const { isOnCooldown } = require("./include/cooldown.js");
 
 const redisConf = {
     host: process.env.REDIS_HOST,
@@ -114,7 +114,7 @@ client.on(Events.InteractionCreate, async interaction => {
     const command = interaction.client.commands.get(interaction.commandName);
     if (!command) return console.warn(`No command matching ${interaction.commandName} was found.`);
 
-    if (timeLeft = isCooldown(interaction.commandName, interaction.user.id, command.cooldown))
+    if (timeLeft = isOnCooldown(interaction.commandName, interaction.user.id, command.cooldown))
         return await interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)}s before execute this command again.`, flags: MessageFlags.Ephemeral })
 
     console.log(`${interaction.user.username} in #${interaction.channel.name} called /${interaction.commandName}.`);
@@ -142,7 +142,7 @@ client.on(Events.MessageCreate, async message => {
     if (!command) return console.warn(`No command matching ${commandName} was found.`);
     if (!command.messageCommand) return message.reply("This command is not available as a message command.");
 
-    if (timeLeft = isCooldown(commandName, message.author.id, command.cooldown))
+    if (timeLeft = isOnCooldown(commandName, message.author.id, command.cooldown))
         return await message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`);
 
     console.log(`${message.author.username} in #${message.channel.name} called /${commandName}.`);
