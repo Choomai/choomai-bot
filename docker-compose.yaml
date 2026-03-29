@@ -11,12 +11,15 @@ services:
       - DB_NAME=Discord
       - DB_USER=root
       - DB_PASSWORD=${DB_PASSWORD}
+      - PORT=${PORT:-16969}
     depends_on:
       redis:
         condition: service_healthy
       mysql:
         condition: service_started
     restart: unless-stopped
+    ports: 
+      - "${PORT:-16969}:${PORT:-16969}"
     networks:
       - default
       - internal
