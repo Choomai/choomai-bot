@@ -22,29 +22,7 @@ npm install
 
 ### 2. Configure environment variables
 
-Create a `.env` file in the project root:
-
-```env
-TOKEN=your_discord_bot_token
-CLIENT_ID=your_application_client_id
-SERVER_ID=your_main_server_id
-SERVER_MEMBER_ID=your_member_role_id
-
-DB_HOST=127.0.0.1        # or leave unset to use DB_SOCKET
-DB_SOCKET=/run/mysqld/mysqld.sock
-DB_USER=root
-DB_PASSWORD=your_db_password
-DB_NAME=Discord
-
-REDIS_HOST=127.0.0.1     # or leave unset to use REDIS_SOCKET
-REDIS_SOCKET=/var/run/redis/redis.sock
-
-PORT=6969                # or leave unset to use SOCKET_PATH
-SOCKET_PATH=/app/web.sock
-
-TURNSTILE_SITE_KEY=1x00000000000000000000AA
-TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
-```
+Rename `.env.example` to `.env` in the project root and modify it accordingly
 
 ### 3. Initialize the database
 
@@ -71,15 +49,7 @@ node app.js
 A `docker-compose.yaml` is provided that bundles the bot, MySQL 8, and Redis together.
 
 ```bash
-# Create a .env file with at minimum:
-# DB_PASSWORD=your_db_password
-# TOKEN=your_discord_bot_token
-# CLIENT_ID=your_application_client_id
-# SERVER_ID=your_main_server_id
-# SERVER_MEMBER_ID=your_member_role_id
-# TURNSTILE_SITE_KEY=1x00000000000000000000AA
-# TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
-
+# Configure enviroment variables before running.
 docker compose up -d
 ```
 
