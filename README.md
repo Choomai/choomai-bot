@@ -17,7 +17,7 @@ A Discord bot built with [discord.js](https://discord.js.org/).
 ```bash
 git clone https://github.com/Choomai/choomai-bot
 cd choomai-bot
-npm install --omit=dev
+npm install
 ```
 
 ### 2. Configure environment variables
