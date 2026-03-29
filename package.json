@@ -7,8 +7,13 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "sync": "node sync_cmd.js"
     },
-    "author": "Choomai",
+    "author": {
+        "name": "Choomai",
+        "email": "main@choomai.net",
+        "url": "https://choomai.net"
+    },
     "license": "AGPL-3.0-or-later",
+    "homepage": "https://github.com/Choomai/choomai-bot",
     "engines": {
         "node": ">=20.12.0"
     },
