@@ -42,6 +42,16 @@ npm run sync
 node app.js
 ```
 
+### 6. Configure a reverse proxy (e.g. NGINX)
+
+- Buy a domain
+- Enable HTTPS (choose either one of these):
+    - Setup DNS record to point to your server, and install a certificate ([Let's Encrypt](https://letsencrypt.org) is free btw)
+    - Enable **Proxied** mode using Cloudflare, and install their [Origin Certificates](https://developers.cloudflare.com/ssl/origin-configuration/)
+- Add rate-limiting
+
+Expose Express server directly to the internet without a reverse proxy is not recommended, as it lacks features like HTTPS termination and rate-limiting which are essential for security and performance.
+
 ---
 
 ## Docker
@@ -49,7 +59,7 @@ node app.js
 A `docker-compose.yaml` is provided that bundles the bot, MySQL 8, and Redis together.
 
 ```bash
-# Configure enviroment variables before running.
+# Configure enviroment variables & a reverse proxy before running.
 docker compose up -d
 ```
 
