@@ -12,7 +12,7 @@ const { formatTime } = require("./include/time.js");
 const { simpleLog, commandLog, autoMuteLog } = require("./include/log.js");
 const { isOnCooldown } = require("./include/cooldown.js");
 
-const redisConf = {
+const REDIS_CONF = {
     host: process.env.REDIS_HOST,
     path: process.env.REDIS_SOCKET
 };
@@ -35,7 +35,7 @@ client.db = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
-client.redis = new Redis(redisConf);
+client.redis = new Redis(REDIS_CONF);
 const server = express();
 server.use(express.json());
 server.enable("trust proxy");
@@ -148,8 +148,8 @@ client.on(Events.MessageCreate, async message => {
  * If notify interval is set -> schedule recurring jobs in afkNotify to trigger at each notify interval (with userId and AFK end time as data)
  * When afkQueue job runs (means AFK expired) -> send DM to user that AFK has expired -> remove any remaining notify jobs for that user
  */
-const afkQueue = new Queue("afk", { connection: redisConf });
-const afkNotify = new Queue("notify", { connection: redisConf });
+const afkQueue = new Queue("afk", { connection: REDIS_CONF });
+const afkNotify = new Queue("notify", { connection: REDIS_CONF });
 const passingObj = { afkQueue, afkNotify };
 new Worker("afk", async job => {
     const user = await client.users.fetch(job.id);
@@ -157,13 +157,13 @@ new Worker("afk", async job => {
     user.send("Your AFK status has expired.")
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
     if (job.data.notifyId) await afkNotify.removeJobScheduler(job.data.notifyId);
-}, { connection: redisConf });
+}, { connection: REDIS_CONF });
 new Worker("notify", async job => {
     const user = await client.users.fetch(job.data.userId);
     console.log(`Sending AFK notification to user ${user.username}.`);
     user.send(`You have ${formatTime(job.data.endTime - Date.now())} left.`)
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
-}, { connection: redisConf });
+}, { connection: REDIS_CONF });
 
 
 /**
