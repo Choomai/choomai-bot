@@ -42,7 +42,6 @@ server.enable("trust proxy");
 server.set("view engine", "ejs");
 
 const memberVCStates = new Map();
-const passingObj = { afkQueue, afkNotify };
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands/");
@@ -151,6 +150,7 @@ client.on(Events.MessageCreate, async message => {
  */
 const afkQueue = new Queue("afk", { connection: redisConf });
 const afkNotify = new Queue("notify", { connection: redisConf });
+const passingObj = { afkQueue, afkNotify };
 new Worker("afk", async job => {
     const user = await client.users.fetch(job.id);
     console.log(`AFK status expired for user ${user.username}.`);
