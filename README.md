@@ -2,7 +2,7 @@
 
 <!-- README generated with Claude (Anthropic) and Github Copilot -->
 
-A Discord bot built with [discord.js](https://discord.js.org/).
+Some random & useless Discord bot built with [discord.js](https://discord.js.org/).
 
 ## Requirements
 
