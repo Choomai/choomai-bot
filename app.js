@@ -64,7 +64,7 @@ client.on(Events.ClientReady, () => {
 });
 
 client.on(Events.GuildMemberAdd, async member => {
-    simpleLog(client, member.guild.id, `${member} has joined the server. Please verify.`);
+    simpleLog(client, member.guild.id, `${member} has joined the server.`);
 });
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
