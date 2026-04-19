@@ -5,7 +5,7 @@ const { Pool } = require("mysql2/promise");
 /**
  * @typedef {Client & { redis: Redis, db: Pool }} ExtendedClient
  * @param {CommandInteraction & { client: ExtendedClient }} interaction
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function execute(interaction) {
     let channel = interaction.options.getChannel("channel");

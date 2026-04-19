@@ -5,6 +5,7 @@ const { Queue, Worker } = require("bullmq");
 const express = require("express");
 const Redis = require("ioredis");
 const mysql = require("mysql2/promise");
+const zod = require("zod");
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
 
 const { version } = require("./package.json");
@@ -175,7 +176,7 @@ new Worker("notify", async job => {
  */
 server.get("/verify/:uuid", async (req, res) => {
     const uuid = req.params.uuid;
-    if (!/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(uuid)) {
+    if (!zod.uuidv4().safeParse(uuid).success) {
         res.setHeader("Content-Type", "text/plain");
         return res.status(400).send("Invalid UUID format.");
     }
@@ -187,8 +188,8 @@ server.get("/verify/:uuid", async (req, res) => {
 server.post("/verify/:uuid/check", async (req, res) => {
     const { token } = req.body;
     const uuid = req.params.uuid;
-    if (!uuid || !token) return res.status(400).json({ success: false, message: "Missing uuid or token." });
-    if (!/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(uuid))
+    if (!uuid || !token) return res.status(400).json({ success: false, message: "Missing UUID or token." });
+    if (!zod.uuidv4().safeParse(uuid).success)
         return res.status(400).json({ success: false, message: "Invalid UUID format." });
 
     const userData = JSON.parse(await client.redis.get(`choomai_bot:verify:${uuid}`));

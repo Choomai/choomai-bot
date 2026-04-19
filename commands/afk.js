@@ -7,7 +7,7 @@ const { Queue } = require("bullmq");
  * @param {Object} options
  * @param {Queue} options.afkQueue
  * @param {Queue} options.afkNotify
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function execute(interaction, options) {
     const { afkQueue, afkNotify } = options;

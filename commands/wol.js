@@ -2,6 +2,7 @@ const { SlashCommandBuilder, MessageFlags, CommandInteraction } = require("disco
 const wol = require("wol");
 const dns = require("node:dns/promises");
 const net = require("node:net");
+const zod = require("zod");
 
 /**
  * @param {CommandInteraction} interaction 
@@ -24,7 +25,7 @@ async function execute(interaction) {
         }
     };
 
-    if (!/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(mac))
+    if (!zod.mac().safeParse(mac).success)
         return void interaction.editReply({ content: "Invalid MAC", flags: MessageFlags.Ephemeral });
 
 
