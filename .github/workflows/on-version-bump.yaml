@@ -12,44 +12,55 @@ permissions:
   packages: write
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.meta.outputs.changed }}
+      version: ${{ steps.meta.outputs.version }}
+      image_name: ${{ steps.meta.outputs.image_name }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
-      - name: Check if version changed
-        id: check
+      - name: Compute metadata
+        id: meta
         run: |
+          echo "image_name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"
+
           if git diff HEAD~1 HEAD -- package.json | grep -q '"version"'; then
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
+  build:
+    runs-on: ubuntu-latest
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
       - name: Set up Docker Buildx
-        if: steps.check.outputs.changed == 'true'
         uses: docker/setup-buildx-action@v4
 
       - name: Login to GitHub Container Registry
-        if: steps.check.outputs.changed == 'true'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: lowercase github.repository
-        run: |
-          echo "IMAGE_NAME=`echo ${{github.repository}} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
-
       - name: Build and push
-        if: steps.check.outputs.changed == 'true'
         uses: docker/build-push-action@v7
         with:
           context: ./
           file: ./Dockerfile
           push: true
-          platforms: linux/amd64, linux/arm64
-          tags: ghcr.io/${{ env.IMAGE_NAME }}:latest
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/${{ needs.check.outputs.image_name }}:latest
+            ghcr.io/${{ needs.check.outputs.image_name }}:${{ needs.check.outputs.version }}
