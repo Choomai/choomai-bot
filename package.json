@@ -18,11 +18,11 @@
         "node": ">=20.12.0"
     },
     "dependencies": {
-        "bullmq": "^5.71.1",
-        "discord.js": "^14.25.1",
-        "ejs": "^5.0.1",
+        "bullmq": "^5.75.2",
+        "discord.js": "^14.26.3",
+        "ejs": "^5.0.2",
         "express": "^5.2.1",
-        "mysql2": "^3.20.0",
+        "mysql2": "^3.22.1",
         "systeminformation": "^5.31.5",
         "wol": "^1.0.7",
         "zod": "^4.3.6"
@@ -30,6 +30,6 @@
     "devDependencies": {
         "@commitlint/cli": "^20.5.0",
         "@commitlint/config-conventional": "^20.5.0",
-        "@dotenvx/dotenvx": "^1.58.0"
+        "@dotenvx/dotenvx": "^1.61.1"
     }
 }
