@@ -1,9 +1,7 @@
-// TODO: Add subcommand to change visibilty
-
 const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitField, ChannelType, SlashCommandSubcommandBuilder, CommandInteraction, GuildMember } = require("discord.js");
 
-/** @type {Array<{ id: string, owner: GuildMember, hidden: boolean, interval: NodeJS.Timeout }>} */
-const voiceChannels = [];
+/** @type {Map<GuildMember, { id: string, hidden: boolean, interval: NodeJS.Timeout }>} */
+const voiceChannels = new Map();
 
 /**
  * @param {CommandInteraction} interaction
@@ -50,17 +48,15 @@ async function execute(interaction) {
                 if (channel?.members.size === 0) {
                     clearInterval(interval);
                     channel.delete();
-                    voiceChannels = voiceChannels.filter(ch => ch.id !== channel.id);
+                    voiceChannels.delete(interaction.member);
                 }
             }, 5 * 60 * 1000);
-            voiceChannels.push({
-                id: channel.id, owner: interaction.member, hidden, interval
-            });
+            voiceChannels.set(interaction.member, { id: channel.id, hidden, interval });
             break;
     
         case "add":
             targetUser = interaction.options.getUser("user");
-            selectedChannel = voiceChannels.find(channel => channel.owner === interaction.member);
+            selectedChannel = voiceChannels.get(interaction.member);
             if (!selectedChannel) return void interaction.reply({ content: "VC not found, please create one first.", flags: MessageFlags.Ephemeral });
             selectedChannel = await interaction.client.channels.fetch(selectedChannel.id);
 
@@ -68,21 +64,38 @@ async function execute(interaction) {
                 Connect: true,
                 ViewChannel: true
             });
-            hidden = voiceChannels.find(channel => channel.id == selectedChannel.id).hidden;
+            hidden = voiceChannels.get(interaction.member).hidden;
             await interaction.reply({ content: `Allowed ${targetUser} to the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
             break;
 
         case "remove":
             targetUser = interaction.options.getUser("user");
-            selectedChannel = voiceChannels.find(channel => channel.owner === interaction.member);
-            selectedChannel = await interaction.client.channels.fetch(selectedChannel.id);
+            selectedChannel = voiceChannels.get(interaction.member);
             if (!selectedChannel) return void interaction.reply({ content: "VC not found, please create one first.", flags: MessageFlags.Ephemeral });
+            selectedChannel = await interaction.client.channels.fetch(selectedChannel.id);
 
             if (!selectedChannel.permissionOverwrites.delete(targetUser))
                 return void interaction.reply({ content: `${targetUser} have not been allowed to the VC or an error occurred.`, flags: MessageFlags.Ephemeral });
 
-            hidden = voiceChannels.find(channel => channel.id == selectedChannel.id).hidden;
+            hidden = voiceChannels.get(interaction.member).hidden;
             await interaction.reply({ content: `Disallowed ${targetUser} from the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
+            break;
+
+        case "toggle":
+            selectedChannel = voiceChannels.get(interaction.member);
+            if (!selectedChannel) return void interaction.reply({ content: "VC not found, please create one first.", flags: MessageFlags.Ephemeral });
+            selectedChannel = await interaction.client.channels.fetch(selectedChannel.id);
+
+            const currentOverwrite = selectedChannel.permissionOverwrites.cache.get(interaction.guild.id);
+            if (!currentOverwrite) return void interaction.reply({ content: "An error occurred while fetching the channel permission overwrites.", flags: MessageFlags.Ephemeral });
+
+            const newHiddenState = !voiceChannels.get(interaction.member).hidden;
+            await currentOverwrite.edit(interaction.guild.id, {
+                Connect: !newHiddenState,
+                ViewChannel: !newHiddenState
+            });
+            voiceChannels.get(interaction.member).hidden = newHiddenState;
+            await interaction.reply({ content: `The VC is now ${newHiddenState ? "hidden from channel list" : "visible in channel list"}.`, flags: newHiddenState ? MessageFlags.Ephemeral : undefined })
             break;
 
         case "purge":
@@ -91,11 +104,11 @@ async function execute(interaction) {
             await interaction.deferReply();
 
             let removedCounter = 0;
-            for (let i = voiceChannels.length - 1; i >= 0; i--) {
-                const voiceChannel = await interaction.guild.channels.fetch(voiceChannels[i].id);
+            for (const [key, value] of voiceChannels.entries()) {
+                const voiceChannel = await interaction.guild.channels.fetch(value.id);
                 if (voiceChannel?.members.size !== 0) continue;
                 voiceChannel.delete();
-                voiceChannels.splice(i, 1);
+                voiceChannels.delete(key);
                 await interaction.editReply(`Removed ${++removedCounter} empty private VC.`);
             }
             if (removedCounter === 0) return await interaction.editReply("Can't find any empty private VC to be deleted.");
@@ -145,6 +158,10 @@ module.exports = {
                 .setDescription("Set the user that aren't allow to join the private VC")
                 .setRequired(true)
             )
+        )
+        .addSubcommand(new SlashCommandSubcommandBuilder()
+            .setName("toggle")
+            .setDescription("Toggle the visibility of the VC")
         )
         .addSubcommand(new SlashCommandSubcommandBuilder()
             .setName("purge")
