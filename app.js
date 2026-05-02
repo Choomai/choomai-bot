@@ -175,13 +175,15 @@ new Worker("notify", async job => {
  * POST /verify/:uuid/check - Handles the form submission from the verification page.
  * Validates the UUID and token, verifies the Turnstile token with Cloudflare, and if successful, assigns the member role to the user.
  */
-server.get("/verify/:uuid", async (req, res) => {
-    res.setHeader("Cache-Control", "no-store");
-    const uuid = req.params.uuid;
+server.param("uuid", (req, res, next, uuid) => {
     if (!zod.uuidv4().safeParse(uuid).success) {
         res.setHeader("Content-Type", "text/plain");
         return res.status(400).send("Invalid UUID format.");
     }
+    next();
+});
+server.get("/verify/:uuid", async (req, res) => {
+    res.setHeader("Cache-Control", "no-store");
     if (!await client.redis.get(`choomai_bot:verify:${uuid}`)) return res.status(404).send("UUID not found or expired.");
 
     const nonce = crypto.randomBytes(16).toString("hex");
@@ -193,8 +195,6 @@ server.post("/verify/:uuid/check", async (req, res) => {
     const { token } = req.body;
     const uuid = req.params.uuid;
     if (!uuid || !token) return res.status(400).json({ success: false, message: "Missing UUID or token." });
-    if (!zod.uuidv4().safeParse(uuid).success)
-        return res.status(400).json({ success: false, message: "Invalid UUID format." });
 
     const userData = JSON.parse(await client.redis.get(`choomai_bot:verify:${uuid}`));
     if (!userData) return res.status(404).json({ success: false, message: "UUID not found or expired." });
