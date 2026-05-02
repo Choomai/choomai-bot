@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const crypto = require("node:crypto");
 if (process.env.NODE_ENV != "production") require("@dotenvx/dotenvx").config();
 const { Queue, Worker } = require("bullmq");
 const express = require("express");
@@ -175,6 +176,7 @@ new Worker("notify", async job => {
  * Validates the UUID and token, verifies the Turnstile token with Cloudflare, and if successful, assigns the member role to the user.
  */
 server.get("/verify/:uuid", async (req, res) => {
+    res.setHeader("Cache-Control", "no-store");
     const uuid = req.params.uuid;
     if (!zod.uuidv4().safeParse(uuid).success) {
         res.setHeader("Content-Type", "text/plain");
@@ -182,7 +184,9 @@ server.get("/verify/:uuid", async (req, res) => {
     }
     if (!await client.redis.get(`choomai_bot:verify:${uuid}`)) return res.status(404).send("UUID not found or expired.");
 
-    res.render("verify", { siteKey: process.env.TURNSTILE_SITE_KEY });
+    const nonce = crypto.randomBytes(16).toString("hex");
+    res.setHeader("Content-Security-Policy", `script-src 'self' https://challenges.cloudflare.com 'nonce-${nonce}';`);
+    res.render("verify", { siteKey: process.env.TURNSTILE_SITE_KEY, uuid, nonce });
 });
 
 server.post("/verify/:uuid/check", async (req, res) => {

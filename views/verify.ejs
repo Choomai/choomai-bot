@@ -19,9 +19,9 @@
         }
     </style>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    <script>
+    <script nonce="<%= nonce %>">
         function onSuccess(token) {
-            fetch(`${window.location.pathname}/check`, {
+            fetch(`/verify/<%= uuid %>/check`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token })
