@@ -43,7 +43,7 @@ async function execute(interaction) {
                     }
                 ]
             });
-            await interaction.editReply(`Private voice channel created!${hidden ? " (Hidden from channel list)" : ""}`);
+            void interaction.editReply(`Private voice channel created!${hidden ? " (Hidden from channel list)" : ""}`);
             const interval = setInterval(() => {
                 if (channel?.members.size === 0) {
                     clearInterval(interval);
@@ -65,7 +65,7 @@ async function execute(interaction) {
                 ViewChannel: true
             });
             hidden = voiceChannels.get(interaction.member).hidden;
-            await interaction.reply({ content: `Allowed ${targetUser} to the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
+            void interaction.reply({ content: `Allowed ${targetUser} to the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
             break;
 
         case "remove":
@@ -78,7 +78,7 @@ async function execute(interaction) {
                 return void interaction.reply({ content: `${targetUser} have not been allowed to the VC or an error occurred.`, flags: MessageFlags.Ephemeral });
 
             hidden = voiceChannels.get(interaction.member).hidden;
-            await interaction.reply({ content: `Disallowed ${targetUser} from the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
+            void interaction.reply({ content: `Disallowed ${targetUser} from the VC`, flags: hidden ? MessageFlags.Ephemeral : undefined })
             break;
 
         case "toggle":
@@ -95,7 +95,7 @@ async function execute(interaction) {
                 ViewChannel: !newHiddenState
             });
             voiceChannels.get(interaction.member).hidden = newHiddenState;
-            await interaction.reply({ content: `The VC is now ${newHiddenState ? "hidden from channel list" : "visible in channel list"}.`, flags: newHiddenState ? MessageFlags.Ephemeral : undefined })
+            void interaction.reply({ content: `The VC is now ${newHiddenState ? "hidden from channel list" : "visible in channel list"}.`, flags: newHiddenState ? MessageFlags.Ephemeral : undefined })
             break;
 
         case "purge":
@@ -111,7 +111,7 @@ async function execute(interaction) {
                 voiceChannels.delete(key);
                 await interaction.editReply(`Removed ${++removedCounter} empty private VC.`);
             }
-            if (removedCounter === 0) return await interaction.editReply("Can't find any empty private VC to be deleted.");
+            if (removedCounter === 0) return interaction.editReply("Can't find any empty private VC to be deleted.");
             break;
     }
 }

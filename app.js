@@ -103,20 +103,20 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!command) return console.warn(`No command matching ${interaction.commandName} was found.`);
 
     if (timeLeft = isOnCooldown(interaction.commandName, interaction.user.id, command.cooldown))
-        return await interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)}s before execute this command again.`, flags: MessageFlags.Ephemeral })
+        return interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)}s before execute this command again.`, flags: MessageFlags.Ephemeral })
 
     console.log(`${interaction.user.username} in #${interaction.channel.name} called /${interaction.commandName}.`);
     try {await command.execute(interaction, passingObj)}
     catch (error) {
         console.error(error);
         if (interaction.replied || interaction.deferred) {
-            await interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+            void interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
         } else {
-            await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+            void interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
         };
     };
     
-    commandLog(interaction.client, interaction.guildId, interaction.user, interaction.commandName);
+    void commandLog(interaction.client, interaction.guildId, interaction.user, interaction.commandName);
 });
 
 client.on(Events.MessageCreate, async message => {
@@ -131,7 +131,7 @@ client.on(Events.MessageCreate, async message => {
     if (!command.messageCommand) return message.reply("This command is not available as a message command.");
 
     if (timeLeft = isOnCooldown(commandName, message.author.id, command.cooldown))
-        return await message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`);
+        return message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`);
 
     console.log(`${message.author.username} in #${message.channel.name} called /${commandName}.`);
     try {await command.execute(message, passingObj)}

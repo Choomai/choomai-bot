@@ -78,7 +78,7 @@ async function execute(interaction, options) {
 
         case "leaderboard":
             const delayedJobs = await afkQueue.getDelayed();
-            if (delayedJobs.length <= 0) {await interaction.reply("Leaderboard is empty."); break};
+            if (delayedJobs.length <= 0) {void interaction.reply("Leaderboard is empty."); break};
 
             response = "## AFK Leaderboard:\n";
             const currentTime = Date.now();

@@ -9,16 +9,16 @@ async function execute(interaction) {
     let channel;
     if (interaction instanceof Message) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.MoveMembers))
-            return await interaction.reply("You do not have permission to use this command.");
+            return interaction.reply("You do not have permission to use this command.");
 
         channel = interaction.member.voice.channel;
-        if (!channel) return await interaction.reply("You are not in a voice channel.");
+        if (!channel) return interaction.reply("You are not in a voice channel.");
     } else if (interaction instanceof CommandInteraction) {
         if (!interaction.memberPermissions.has(PermissionFlagsBits.MoveMembers))
-            return await interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
+            return interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
 
         channel = interaction.member.voice.channel;
-        if (!channel) return await interaction.reply({ content: "You are not in a voice channel.", flags: MessageFlags.Ephemeral });
+        if (!channel) return interaction.reply({ content: "You are not in a voice channel.", flags: MessageFlags.Ephemeral });
     }
 
     interaction.reply({ content: `Starting to disconnect everyone from ${channel}.`, allowedMentions: { repliedUser: false } });

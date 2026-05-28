@@ -31,7 +31,7 @@ async function execute(interaction) {
         JSON.stringify({ userId: interaction.user.id, guildId: interaction.guildId })
     );
     await interaction.user.send(`Your verification URL is: https://${process.env.DOMAIN}/verify/${uuid}`);
-    interaction.reply({ content: "Check your DM for verification URL.", flags: MessageFlags.Ephemeral });
+    void interaction.reply({ content: "Check your DM for verification URL.", flags: MessageFlags.Ephemeral });
 }
 
 module.exports = {
