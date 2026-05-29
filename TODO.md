@@ -46,11 +46,6 @@
 - **Suggestion**: Add consistent JSDoc to all command files
 - **Example**: [verify.js](commands/verify.js) has good JSDoc, but others are missing
 
-### Repeated Cooldown Logic
-- **Issue**: Cooldown checking is duplicated in InteractionCreate and MessageCreate handlers
-- **File**: [app.js](app.js#L112), [app.js](app.js#L126)
-- **Suggestion**: Extract into a helper function
-
 ### Rate Limiting is Simplistic
 - **Current**: Basic per-command per-user cooldown
 - **Issue**: No guild-level, channel-level, or burst protection
