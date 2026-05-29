@@ -1,5 +1,5 @@
 import { Client, TextChannel, User, EmbedBuilder, ChannelType } from "discord.js";
-import { formatTime } from "../include/time.js";
+import { formatTime } from "./time.js";
 import { Redis } from "ioredis";
 import mysql from "mysql2/promise";
 
