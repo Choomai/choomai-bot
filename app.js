@@ -96,7 +96,8 @@ client.on(Events.InteractionCreate, async interaction => {
     const command = interaction.client.commands.get(interaction.commandName);
     if (!command) return console.warn(`No command matching ${interaction.commandName} was found.`);
 
-    if (timeLeft = isOnCooldown(interaction.commandName, interaction.user.id, command.cooldown))
+    const timeLeft = isOnCooldown(interaction.commandName, interaction.user.id, command.cooldown)
+    if (timeLeft)
         return interaction.reply({ content: `Please wait ${timeLeft.toFixed(1)}s before execute this command again.`, flags: MessageFlags.Ephemeral })
 
     console.log(`${interaction.user.username} in #${interaction.channel.name} called /${interaction.commandName}.`);
@@ -124,7 +125,8 @@ client.on(Events.MessageCreate, async message => {
     if (!command) return console.warn(`No command matching ${commandName} was found.`);
     if (!command.messageCommand) return message.reply("This command is not available as a message command.");
 
-    if (timeLeft = isOnCooldown(commandName, message.author.id, command.cooldown))
+    const timeLeft = isOnCooldown(commandName, message.author.id, command.cooldown)
+    if (timeLeft)
         return message.reply(`Please wait ${timeLeft.toFixed(1)}s before execute this command again.`);
 
     console.log(`${message.author.username} in #${message.channel.name} called /${commandName}.`);
