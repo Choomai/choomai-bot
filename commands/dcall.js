@@ -1,10 +1,10 @@
-const { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, MessageFlags, Message, VoiceChannel } = require("discord.js");
+import { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, MessageFlags, Message, VoiceChannel } from "discord.js";
 
 /**
  * @param {CommandInteraction|Message} interaction
  * @returns {Promise<void>}
  */
-async function execute(interaction) {
+export async function execute(interaction) {
     /** @type {VoiceChannel} */
     let channel;
     if (interaction instanceof Message) {
@@ -27,12 +27,9 @@ async function execute(interaction) {
     }
 }
 
-module.exports = {
-    cooldown: 30000,
-    messageCommand: true,
-    data: new SlashCommandBuilder()
-        .setName("dcall")
-        .setDescription("Disconnect everyone from the voice channel that the invoker is in")
-        .setDefaultMemberPermissions(PermissionFlagsBits.MoveMembers),
-    execute
-}
+export const cooldown = 30000;
+export const messageCommand = true;
+export const data = new SlashCommandBuilder()
+    .setName("dcall")
+    .setDescription("Disconnect everyone from the voice channel that the invoker is in")
+    .setDefaultMemberPermissions(PermissionFlagsBits.MoveMembers)

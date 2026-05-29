@@ -1,14 +1,14 @@
-const { Client, SlashCommandBuilder, CommandInteraction, MessageFlags, PermissionFlagsBits } = require("discord.js");
-const crypto = require("node:crypto");
-const { formatTime } = require("../include/time.js");
-const { Redis } = require("ioredis");
+import { Client, SlashCommandBuilder, CommandInteraction, MessageFlags, PermissionFlagsBits } from "discord.js";
+import crypto from "node:crypto";
+import { formatTime } from "../include/time.js";
+import { Redis } from "ioredis";
 
 /**
  * @typedef {Client & { redis: Redis }} ExtendedClient
  * @param {CommandInteraction & { client: ExtendedClient }} interaction
  * @returns {Promise<void>}
  */
-async function execute(interaction) {
+export async function execute(interaction) {
     if (interaction.member.roles.cache.has(process.env.SERVER_MEMBER_ID) || interaction.memberPermissions.has(PermissionFlagsBits.Administrator))
         return void interaction.reply({ content: "You are already verified.", flags: MessageFlags.Ephemeral });
 
@@ -34,9 +34,6 @@ async function execute(interaction) {
     void interaction.reply({ content: "Check your DM for verification URL.", flags: MessageFlags.Ephemeral });
 }
 
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName("verify")
-        .setDescription("Who are you ?"),
-    execute
-};
+export const data = new SlashCommandBuilder()
+    .setName("verify")
+    .setDescription("Who are you ?")

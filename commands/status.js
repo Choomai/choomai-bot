@@ -1,8 +1,8 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { exec } = require("node:child_process");
-const SysInfo = require("systeminformation")
-const net = require("node:net");
-const { formatBytes } = require("../include/bytes.js");
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { exec } from "node:child_process";
+import SysInfo from "systeminformation";
+import net from "node:net";
+import { formatBytes } from "../include/bytes.js";
 
 /**
  * Get CPU, RAM, Network, Docker status for Discord embed message
@@ -35,7 +35,7 @@ async function getSystemStatus() {
  * @param {CommandInteraction} interaction 
  * @returns {Promise<void>}
  */
-async function execute(interaction) {
+export async function execute(interaction) {
     await interaction.deferReply();
     const embedReply = new EmbedBuilder()
         .setColor(0x0099FF)
@@ -72,10 +72,7 @@ async function execute(interaction) {
     updateStat((await checkPort("mc.choomai.net", 25565)), 2);
 }
 
-module.exports = {
-    cooldown: 10000,
-    data: new SlashCommandBuilder()
-        .setName("status")
-        .setDescription("Return all server status of Choomai"),
-    execute
-}
+export const cooldown = 10000;
+export const data = new SlashCommandBuilder()
+    .setName("status")
+    .setDescription("Return all server status of Choomai")

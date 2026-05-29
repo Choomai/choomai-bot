@@ -1,4 +1,4 @@
-const { Collection } = require("discord.js");
+import { Collection } from "discord.js";
 
 const cooldowns = new Collection();
 
@@ -9,7 +9,7 @@ const cooldowns = new Collection();
  * @param {number} cooldownAmount Cooldown time in milliseconds, default is 3000 (3 seconds).
  * @returns {number} Return the time left in seconds if the user is in cooldown, otherwise return 0.
  */
-function isOnCooldown(commandName, userId, cooldownAmount = 3000) {
+export function isOnCooldown(commandName, userId, cooldownAmount = 3000) {
     let now = Date.now();
     if (!cooldowns.has(commandName)) cooldowns.set(commandName, new Collection());
     let timestamps = cooldowns.get(commandName);
@@ -22,7 +22,3 @@ function isOnCooldown(commandName, userId, cooldownAmount = 3000) {
     timestamps.set(userId, now);
     return 0;
 }
-
-module.exports = {
-    isOnCooldown
-};

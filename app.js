@@ -1,18 +1,19 @@
-const fs = require("node:fs");
-const path = require("node:path");
-const crypto = require("node:crypto");
-const { Queue, Worker } = require("bullmq");
-const express = require("express");
-const Redis = require("ioredis");
-const mysql = require("mysql2/promise");
-const zod = require("zod");
-const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
+import fs from "node:fs";
+import path from "node:path";
+import crypto from "node:crypto";
+import { Queue, Worker } from "bullmq";
+import express from "express";
+import Redis from "ioredis";
+import mysql from "mysql2/promise";
+import zod from "zod";
+import { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, MessageFlags, PermissionFlagsBits } from "discord.js";
 
-require("./include/config.js");
-const { version } = require("./package.json");
-const { formatTime } = require("./include/time.js");
-const { simpleLog, commandLog, autoMuteLog } = require("./include/log.js");
-const { isOnCooldown } = require("./include/cooldown.js");
+import "./include/config.js";
+import appPackage from "./package.json" with { type: "json" };
+import loadCommands from "./commands/commands.js";
+import { formatTime } from "./include/time.js";
+import { simpleLog, commandLog, autoMuteLog } from "./include/log.js";
+import { isOnCooldown } from "./include/cooldown.js";
 
 const REDIS_CONF = {
     host: process.env.REDIS_HOST,
@@ -46,23 +47,16 @@ server.set("view engine", "ejs");
 const memberVCStates = new Map();
 
 client.commands = new Collection();
-const commandsPath = path.join(__dirname, "commands/");
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-for (const file of commandFiles) {
-    let filePath = path.join(commandsPath, file);
-    let command = require(filePath);
-    if ("data" in command && "execute" in command) {
-        client.commands.set(command.data.name, command);
-    } else {
-        console.warn(`The command at ${filePath} is missing a required "data" or "execute" property.`);
-    }
-};
+(async () => {
+    const commands = await loadCommands();
+    commands.forEach(cmd => client.commands.set(cmd.data.name, cmd));
+})();
 
 
 
 client.on(Events.ClientReady, () => {
     console.log(`Logged in as ${client.user.tag}.`);
-    client.user.presence.set({ activities: [{ name: `v${version}`, type: ActivityType.Watching }] })
+    client.user.presence.set({ activities: [{ name: `v${appPackage.version}`, type: ActivityType.Watching }] })
 });
 
 client.on(Events.GuildMemberAdd, async member => {

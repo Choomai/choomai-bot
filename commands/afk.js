@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, SlashCommandSubcommandBuilder, MessageFlags, CommandInteraction } = require("discord.js");
-const { parseTime, formatTime } = require("../include/time.js");
-const { Queue } = require("bullmq");
+import { SlashCommandBuilder, SlashCommandSubcommandBuilder, MessageFlags, CommandInteraction } from "discord.js";
+import { parseTime, formatTime } from "../include/time.js";
+import { Queue } from "bullmq";
 
 /**
  * @param {CommandInteraction} interaction
@@ -9,7 +9,7 @@ const { Queue } = require("bullmq");
  * @param {Queue} options.afkNotify
  * @returns {Promise<void>}
  */
-async function execute(interaction, options) {
+export async function execute(interaction, options) {
     const { afkQueue, afkNotify } = options;
     let response, mainJob, notifyJob, interval;
     switch (interaction.options.getSubcommand()) {
@@ -92,48 +92,45 @@ async function execute(interaction, options) {
     };
 };
 
-module.exports = {
-    cooldown: 8000,
-    data: new SlashCommandBuilder()
-        .setName("afk")
-        .setDescription("Set the AFK timer for games like VALORANT, and get notify when the timer ran out.")
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName("set")
-            .setDescription("Set your AFK status")
-            .addStringOption(option => option
-                .setName("time")
-                .setDescription("Time in duration, like 3m, 1h, 7d")
-                .setRequired(true)
-            )
-            .addStringOption(option => option
-                .setName("interval")
-                .setDescription("Same as time, will notify you how much time you have left for that interval.")
-            )
+export const cooldown = 8000;
+export const data = new SlashCommandBuilder()
+    .setName("afk")
+    .setDescription("Set the AFK timer for games like VALORANT, and get notify when the timer ran out.")
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("set")
+        .setDescription("Set your AFK status")
+        .addStringOption(option => option
+            .setName("time")
+            .setDescription("Time in duration, like 3m, 1h, 7d")
+            .setRequired(true)
         )
-        .addSubcommand(new SlashCommandSubcommandBuilder()
+        .addStringOption(option => option
             .setName("interval")
-            .setDescription("Set/change interval to notify how much time you have left.")
-            .addStringOption(option => option
-                .setName("time")
-                .setDescription("Time in duration, like 3m, 1h, 7d")
-                .setRequired(true)
-            )
+            .setDescription("Same as time, will notify you how much time you have left for that interval.")
         )
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName("check")
-            .setDescription("Check a user's AFK status")
-            .addUserOption(option => option
-                .setName("user")
-                .setDescription("The user to check")
-            )
+    )
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("interval")
+        .setDescription("Set/change interval to notify how much time you have left.")
+        .addStringOption(option => option
+            .setName("time")
+            .setDescription("Time in duration, like 3m, 1h, 7d")
+            .setRequired(true)
         )
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName("clear")
-            .setDescription("Clear your AFK status")
+    )
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("check")
+        .setDescription("Check a user's AFK status")
+        .addUserOption(option => option
+            .setName("user")
+            .setDescription("The user to check")
         )
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName("leaderboard")
-            .setDescription("Get the AFK leaderboard")
-        ),
-    execute
-};
+    )
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("clear")
+        .setDescription("Clear your AFK status")
+    )
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("leaderboard")
+        .setDescription("Get the AFK leaderboard")
+    )

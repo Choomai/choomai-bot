@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitField, ChannelType, SlashCommandSubcommandBuilder, CommandInteraction, GuildMember } = require("discord.js");
+import { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, PermissionsBitField, ChannelType, SlashCommandSubcommandBuilder, CommandInteraction, GuildMember } from "discord.js";
 
 /** @type {Map<GuildMember, { id: string, hidden: boolean, interval: NodeJS.Timeout }>} */
 const voiceChannels = new Map();
@@ -7,7 +7,7 @@ const voiceChannels = new Map();
  * @param {CommandInteraction} interaction
  * @returns {Promise<void>}
  */
-async function execute(interaction) {
+export async function execute(interaction) {
     let hidden, targetUser, selectedChannel;
 
     switch (interaction.options.getSubcommand()) {
@@ -116,56 +116,53 @@ async function execute(interaction) {
     }
 }
 
-module.exports = {
-    cooldown: 1000,
-    data: new SlashCommandBuilder()
-        .setName("vc")
-        .setDescription("Create/edit private VC")
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName("new")
-            .setDescription("Create a new private VC")
-            .addUserOption(option => option
-                .setName("user")
-                .setDescription("Set the user that are allow to join the private VC")
-                .setRequired(true)
-            )
-            .addChannelOption(option => option
-                .setName("category")
-                .setDescription("What category to put the VC in")
-                .setRequired(false)
-                .addChannelTypes(ChannelType.GuildCategory)
-            )
-            .addBooleanOption(option => option
-                .setName("hidden")
-                .setDescription("Hide the VC from channel list or just show it with locked icon")
-                .setRequired(false)
-            )
+export const cooldown = 1000;
+export const data = new SlashCommandBuilder()
+    .setName("vc")
+    .setDescription("Create/edit private VC")
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("new")
+        .setDescription("Create a new private VC")
+        .addUserOption(option => option
+            .setName("user")
+            .setDescription("Set the user that are allow to join the private VC")
+            .setRequired(true)
         )
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName("add")
-            .setDescription("Allow another user to the VC")
-            .addUserOption(option => option
-                .setName("user")
-                .setDescription("Set the user that are allow to join the private VC")
-                .setRequired(true)
-            )
+        .addChannelOption(option => option
+            .setName("category")
+            .setDescription("What category to put the VC in")
+            .setRequired(false)
+            .addChannelTypes(ChannelType.GuildCategory)
         )
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName("remove")
-            .setDescription("Remove previously allowed user from VC")
-            .addUserOption(option => option
-                .setName("user")
-                .setDescription("Set the user that aren't allow to join the private VC")
-                .setRequired(true)
-            )
+        .addBooleanOption(option => option
+            .setName("hidden")
+            .setDescription("Hide the VC from channel list or just show it with locked icon")
+            .setRequired(false)
         )
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName("toggle")
-            .setDescription("Toggle the visibility of the VC")
+    )
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("add")
+        .setDescription("Allow another user to the VC")
+        .addUserOption(option => option
+            .setName("user")
+            .setDescription("Set the user that are allow to join the private VC")
+            .setRequired(true)
         )
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName("purge")
-            .setDescription("Remove all unused VC that users created")
-        ),
-    execute
-};
+    )
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("remove")
+        .setDescription("Remove previously allowed user from VC")
+        .addUserOption(option => option
+            .setName("user")
+            .setDescription("Set the user that aren't allow to join the private VC")
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("toggle")
+        .setDescription("Toggle the visibility of the VC")
+    )
+    .addSubcommand(new SlashCommandSubcommandBuilder()
+        .setName("purge")
+        .setDescription("Remove all unused VC that users created")
+    )

@@ -3,7 +3,7 @@
  * @param {string} timeStr 
  * @returns {number} Return miliseconds
  */
-function parseTime(timeStr) {
+export function parseTime(timeStr) {
     if (!timeStr) return;
     let time = 0;
     let match = timeStr.match(/(\d+)(s|m|h|d)/g);
@@ -25,7 +25,7 @@ function parseTime(timeStr) {
  * @param {number} ms 
  * @returns {string}
  */
-function formatTime(ms) {
+export function formatTime(ms) {
     let seconds = ms / 1000;
     const days = Math.floor(seconds / (24*60*60));
     seconds -= days * 24 * 60 * 60;
@@ -40,7 +40,3 @@ function formatTime(ms) {
         (seconds ? seconds.toFixed() + "s" : null)
     ].join(" ").trim();
 }
-
-module.exports = {
-    parseTime, formatTime
-};

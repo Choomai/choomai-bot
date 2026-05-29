@@ -1,10 +1,10 @@
-const { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, ChannelType, MessageFlags, VoiceChannel } = require("discord.js");
+import { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, ChannelType, MessageFlags, VoiceChannel } from "discord.js";
 
 /**
  * @param {CommandInteraction} interaction
  * @returns {Promise<void>}
  */
-async function execute(interaction) {
+export async function execute(interaction) {
     /** @type {VoiceChannel} */
     const fromChannel = interaction.options.getChannel("from");
     /** @type {VoiceChannel} */
@@ -24,23 +24,20 @@ async function execute(interaction) {
     }
 }
 
-module.exports = {
-    cooldown: 30000,
-    data: new SlashCommandBuilder()
-        .setName("mvall")
-        .setDescription("Move everyone from one voice channel to another")
-        .setDefaultMemberPermissions(PermissionFlagsBits.MoveMembers)
-        .addChannelOption(option => option
-            .setName("from")
-            .setDescription("The voice channel to move everyone from")
-            .setRequired(true)
-            .addChannelTypes(ChannelType.GuildVoice)
-        )
-        .addChannelOption(option => option
-            .setName("to")
-            .setDescription("The voice channel to move everyone to")
-            .setRequired(true)
-            .addChannelTypes(ChannelType.GuildVoice)
-        ),
-    execute
-}
+export const cooldown = 30000;
+export const data = new SlashCommandBuilder()
+    .setName("mvall")
+    .setDescription("Move everyone from one voice channel to another")
+    .setDefaultMemberPermissions(PermissionFlagsBits.MoveMembers)
+    .addChannelOption(option => option
+        .setName("from")
+        .setDescription("The voice channel to move everyone from")
+        .setRequired(true)
+        .addChannelTypes(ChannelType.GuildVoice)
+    )
+    .addChannelOption(option => option
+        .setName("to")
+        .setDescription("The voice channel to move everyone to")
+        .setRequired(true)
+        .addChannelTypes(ChannelType.GuildVoice)
+    )

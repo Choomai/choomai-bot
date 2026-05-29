@@ -1,16 +1,13 @@
-const { SlashCommandBuilder, CommandInteraction } = require("discord.js");
+import { SlashCommandBuilder, CommandInteraction } from "discord.js";
 
 /**
  * @param {CommandInteraction} interaction 
  * @returns {Promise<void>}
  */
-async function execute(interaction) {
+export async function execute(interaction) {
     await interaction.reply("Pong!");
 }
 
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName("ping")
-        .setDescription("A test command, will return \"Pong!\""),
-    execute
-}
+export const data = new SlashCommandBuilder()
+    .setName("ping")
+    .setDescription("A test command, will return \"Pong!\"")

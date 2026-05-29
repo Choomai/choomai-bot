@@ -1,14 +1,14 @@
-const { SlashCommandBuilder, MessageFlags, CommandInteraction } = require("discord.js");
-const wol = require("wol");
-const dns = require("node:dns/promises");
-const net = require("node:net");
-const zod = require("zod");
+import { SlashCommandBuilder, MessageFlags, CommandInteraction } from "discord.js";
+import wol from "wol";
+import dns from "node:dns/promises";
+import net from "node:net";
+import zod from "zod";
 
 /**
  * @param {CommandInteraction} interaction 
  * @returns {Promise<void>}
  */
-async function execute(interaction) {
+export async function execute(interaction) {
     const { options } = interaction;
 
     await interaction.deferReply();
@@ -39,26 +39,23 @@ async function execute(interaction) {
     }
 };
 
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName("wol")
-        .setDescription("Wake device from sleep using WOL")
-        .addStringOption(option => option
-            .setName("ip")
-            .setDescription("The IP/Hostname to send the packet to")
-            .setRequired(true)
-        )
-        .addStringOption(option => option
-            .setName("mac")
-            .setDescription("Device MAC address to send the packet")
-            .setRequired(true)
-        )
-        .addIntegerOption(option => option
-            .setName("port")
-            .setDescription("The port to send the packet to. Default is 9")
-            .setMinValue(1)
-            .setMaxValue(65535)
-            .setRequired(false)
-        ),
-    execute
-}
+export const data = new SlashCommandBuilder()
+    .setName("wol")
+    .setDescription("Wake device from sleep using WOL")
+    .addStringOption(option => option
+        .setName("ip")
+        .setDescription("The IP/Hostname to send the packet to")
+        .setRequired(true)
+    )
+    .addStringOption(option => option
+        .setName("mac")
+        .setDescription("Device MAC address to send the packet")
+        .setRequired(true)
+    )
+    .addIntegerOption(option => option
+        .setName("port")
+        .setDescription("The port to send the packet to. Default is 9")
+        .setMinValue(1)
+        .setMaxValue(65535)
+        .setRequired(false)
+    )

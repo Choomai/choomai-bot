@@ -1,5 +1,6 @@
-const zod = require("zod");
-if (process.env.NODE_ENV != "production") require("@dotenvx/dotenvx").config();
+import zod from "zod";
+import dotenvx from "@dotenvx/dotenvx";
+if (process.env.NODE_ENV != "production") dotenvx.config();
 
 const envSchema = zod.object({
     // Discord

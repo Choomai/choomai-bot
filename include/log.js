@@ -1,18 +1,18 @@
-const { Client, TextChannel, User, EmbedBuilder, ChannelType } = require("discord.js");
-const { formatTime } = require("./time.js");
-const { Redis } = require("ioredis");
-const { Pool } = require("mysql2/promise");
+import { Client, TextChannel, User, EmbedBuilder, ChannelType } from "discord.js";
+import { formatTime } from "../include/time.js";
+import { Redis } from "ioredis";
+import mysql from "mysql2/promise";
 
 /** 
  * Query the log channel from guildId
  * Look at the cached logChannels, if not found then search it in the DB.
  * If neither is found, return null
- * @typedef {Client & { redis: Redis, db: Pool }} ExtendedClient
+ * @typedef {Client & { redis: Redis, db: mysql.Pool }} ExtendedClient
  * @param {ExtendedClient} client
  * @param {string} guildId
  * @returns {Promise<TextChannel|null>}
  */
-async function getLogChannel(client, guildId) {
+export async function getLogChannel(client, guildId) {
     let logChannelId = await client.redis.get("choomai_bot:log_channel:" + guildId);
     if (!logChannelId) {
         const [log_channels_query] = await client.db.query("SELECT guild_id, channel_id FROM log_channels WHERE guild_id = ?", [guildId]);
@@ -38,7 +38,7 @@ async function getLogChannel(client, guildId) {
  * @param {string} message 
  * @returns {Promise<void>}
  */
-async function simpleLog(client, guildId, message) {
+export async function simpleLog(client, guildId, message) {
     const channel = await getLogChannel(client, guildId);
     if (!channel) return;
     channel.send({ content: message, allowedMentions: { repliedUser: false } })
@@ -53,7 +53,7 @@ async function simpleLog(client, guildId, message) {
  * @param {string} commandName 
  * @returns {Promise<void>}
  */
-async function commandLog(client, guildId, issuer, commandName) {
+export async function commandLog(client, guildId, issuer, commandName) {
     const channel = await getLogChannel(client, guildId);
     if (!channel) return;
 
@@ -78,7 +78,7 @@ async function commandLog(client, guildId, issuer, commandName) {
  * @param {string} reason 
  * @returns {Promise<void>}
  */
-async function autoMuteLog(client, guildId, user, duration, reason) {
+export async function autoMuteLog(client, guildId, user, duration, reason) {
     const channel = await getLogChannel(client, guildId);
     if (!channel) return;
 
@@ -94,7 +94,3 @@ async function autoMuteLog(client, guildId, user, duration, reason) {
         );
     channel.send({ embeds: [mutedLog] }).catch(err => console.error("Failed to send mute log to the log channel", err));
 }
-
-module.exports = {
-    simpleLog, commandLog, autoMuteLog, getLogChannel
-};

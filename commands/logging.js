@@ -1,13 +1,13 @@
-const { Client, SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, CommandInteraction } = require("discord.js");
-const { Redis } = require("ioredis");
-const { Pool } = require("mysql2/promise");
+import { Client, SlashCommandBuilder, ChannelType, MessageFlags, PermissionFlagsBits, CommandInteraction } from "discord.js";
+import { Redis } from "ioredis";
+import mysql from "mysql2/promise";
 
 /**
- * @typedef {Client & { redis: Redis, db: Pool }} ExtendedClient
+ * @typedef {Client & { redis: Redis, db: mysql.Pool }} ExtendedClient
  * @param {CommandInteraction & { client: ExtendedClient }} interaction
  * @returns {Promise<void>}
  */
-async function execute(interaction) {
+export async function execute(interaction) {
     let channel = interaction.options.getChannel("channel");
     if (!interaction.memberPermissions.has(PermissionFlagsBits.ManageGuild))
         return void interaction.reply({ content: "You do not have permission to use this command.", flags: MessageFlags.Ephemeral });
@@ -26,16 +26,13 @@ async function execute(interaction) {
     void interaction.reply(`Successfully set the log channel to ${channel}.`);
 }
 
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName("logging")
-        .setDescription("Set the logging channel for who and when a command has been issued.")
-        .addChannelOption(option => option
-            .setName("channel")
-            .setDescription("The channel for the set action")
-            .setRequired(true)
-            .addChannelTypes(ChannelType.GuildText)
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
-    execute
-}
+export const data = new SlashCommandBuilder()
+    .setName("logging")
+    .setDescription("Set the logging channel for who and when a command has been issued.")
+    .addChannelOption(option => option
+        .setName("channel")
+        .setDescription("The channel for the set action")
+        .setRequired(true)
+        .addChannelTypes(ChannelType.GuildText)
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
