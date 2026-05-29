@@ -23,11 +23,6 @@
 - **Suggestion**: Log full error stack traces to the logging channel
 - **Files**: [app.js](app.js#L118-L120), [app.js](app.js#L130-L132)
 
-### Incomplete README Documentation
-- **Issue**: README only documents some commands
-- **Missing**: `mvall`, `ping`, `vc` commands
-- **File**: [README.md](README.md)
-
 ### Missing Database Schema
 - **Issue**: Only has `log_channels` table
 - **File**: [schema.sql](schema.sql)
@@ -63,15 +58,3 @@
 - **Issue**: Some commands use `MessageFlags.Ephemeral`, others don't
 - **Suggestion**: Standardize error response patterns across all commands
 - **Files**: All command files
-
----
-
-## Testing
-
-### No Test Suite
-- **Issue**: `package.json` has empty test script
-- **Suggestion**: Add unit tests for:
-  - `include/time.js` (parseTime, formatTime)
-  - `include/cooldown.js` (isOnCooldown logic)
-  - `include/bytes.js` (formatBytes)
-- **Tool**: Consider Jest or Vitest
