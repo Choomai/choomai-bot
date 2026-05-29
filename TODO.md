@@ -57,12 +57,6 @@
 - **Suggestion**: Enhance cooldown system to be more flexible
 - **File**: [include/cooldown.js](include/cooldown.js)
 
-### Missing Environment Variable Validation
-- **Issue**: `.env` variables aren't validated on startup
-- **Tool Available**: `zod` is already in dependencies
-- **Suggestion**: Add validation schema at app startup
-- **File**: [app.js](app.js) (top of file)
-
 ### Extract Common Patterns
 - **Identified Patterns**:
   - Error reply patterns (ephemeral, error message)

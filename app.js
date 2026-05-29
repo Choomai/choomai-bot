@@ -1,7 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
-if (process.env.NODE_ENV != "production") require("@dotenvx/dotenvx").config();
 const { Queue, Worker } = require("bullmq");
 const express = require("express");
 const Redis = require("ioredis");
@@ -9,6 +8,7 @@ const mysql = require("mysql2/promise");
 const zod = require("zod");
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, Partials, MessageFlags, PermissionFlagsBits } = require("discord.js");
 
+require("./include/config.js");
 const { version } = require("./package.json");
 const { formatTime } = require("./include/time.js");
 const { simpleLog, commandLog, autoMuteLog } = require("./include/log.js");
