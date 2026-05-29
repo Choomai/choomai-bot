@@ -238,7 +238,7 @@ if (process.env.SOCKET_PATH) {
     } catch { /* No existing socket, or failed to access/unlink, just continue */ }
     server.listen(process.env.SOCKET_PATH, () => {
         console.log(`Web server is running on socket ${process.env.SOCKET_PATH}.`);
-        fs.chmodSync(process.env.SOCKET_PATH, "0775");
+        fs.chmodSync(process.env.SOCKET_PATH, process.env.SOCKET_MODE || "0775");
     });
 } else {
     server.listen(process.env.PORT, () => console.log(`Web server is running on port ${process.env.PORT}.`));
