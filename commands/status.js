@@ -49,6 +49,12 @@ export async function execute(interaction) {
         );
     await interaction.editReply({embeds: [embedReply]});
 
+    /**
+     * Update a status field in the embed with online/offline status
+     * @param {boolean} online - Whether the service is online
+     * @param {number} id - Index of the embed field to update
+     * @returns {Promise<void>}
+     */
     async function updateStat(online, id) {
         embedReply.data.fields[id].value = online ? "✅Online" : "❌Offline";
         await interaction.editReply({embeds: [embedReply]});
@@ -56,6 +62,12 @@ export async function execute(interaction) {
 
     exec("systemctl is-active nginx --quiet", err => updateStat(!err, 0));
 
+    /**
+     * Check if a port is open/reachable on a given host
+     * @param {string} host - Hostname or IP address to check
+     * @param {number} port - Port number to check
+     * @returns {Promise<boolean>} True if port is reachable, false otherwise
+     */
     async function checkPort(host, port) {
         const client = new net.Socket();
         const status = await new Promise(resolve => {
