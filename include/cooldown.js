@@ -4,7 +4,7 @@ const cooldowns = new Collection();
 
 /**
  * Check if the user is in cooldown for the command, if not, set the cooldown.
- * @param {string} commandName,
+ * @param {string} commandName
  * @param {string} userId 
  * @param {number} cooldownAmount Cooldown time in milliseconds, default is 3000 (3 seconds).
  * @returns {number} Return the time left in seconds if the user is in cooldown, otherwise return 0.
