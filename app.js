@@ -54,7 +54,7 @@ client.commands = new Collection();
 
 
 
-client.on(Events.ClientReady, () => {
+client.once(Events.ClientReady, () => {
     console.log(`Logged in as ${client.user.tag}.`);
     client.user.presence.set({ activities: [{ name: `v${appPackage.version}`, type: ActivityType.Watching }] })
 });
