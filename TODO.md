@@ -17,12 +17,6 @@
 - **Status**: Has TODO comment in code
 - **Details**: Need to parse message content for command arguments (currently only gets command name)
 
-### Generic Error Messages
-- **Issue**: "There was an error while executing this command!" doesn't help debugging
-- **Problem**: Errors aren't logged to logging channel with details
-- **Suggestion**: Log full error stack traces to the logging channel
-- **Files**: [app.js](app.js#L118-L120), [app.js](app.js#L130-L132)
-
 ### Missing Database Schema
 - **Issue**: Only has `log_channels` table
 - **File**: [schema.sql](schema.sql)
