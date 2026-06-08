@@ -53,10 +53,31 @@ client.commands = new Collection();
 })();
 
 
-
+let countdownInterval = null;
+let lastUpdateMinute = -1;
 client.once(Events.ClientReady, () => {
     console.log(`Logged in as ${client.user.tag}.`);
-    client.user.presence.set({ activities: [{ name: `v${appPackage.version}`, type: ActivityType.Watching }] })
+    // client.user.presence.set({ activities: [{ name: `v${appPackage.version}`, type: ActivityType.Watching }] })
+    const countdownDate = new Date("Thu Jun 11 2026 07:00:00 GMT+0700 (Indochina Time)");
+    countdownInterval = setInterval(() => {
+        const now = Date.now();
+        const timeLeft = countdownDate.getTime() - now;
+
+        if (timeLeft <= 0) {
+            client.user.presence.set({ activities: [{ name: "Event in progress!", type: ActivityType.Watching }] });
+            clearInterval(countdownInterval);
+            return;
+        };
+        
+        const currentMinute = Math.floor((timeLeft / 1000) / 60);
+        if (currentMinute !== lastUpdateMinute) {
+            lastUpdateMinute = currentMinute;
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const timeDisplay = `${hours}h ${minutes}m`;
+            client.user.presence.set({ activities: [{ name: timeDisplay, type: ActivityType.Watching }] });
+        };
+    }, 5000);
 });
 
 client.on(Events.GuildMemberAdd, async member => {
@@ -179,6 +200,7 @@ server.param("uuid", (req, res, next, uuid) => {
     next();
 });
 server.get("/verify/:uuid", async (req, res) => {
+    const uuid = req.params.uuid;
     res.setHeader("Cache-Control", "no-store");
     if (!await client.redis.get(`choomai_bot:verify:${uuid}`)) return res.status(404).send("UUID not found or expired.");
 
