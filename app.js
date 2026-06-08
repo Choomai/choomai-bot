@@ -112,7 +112,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
-    if (!interaction.inGuild()) return interaction.reply("Hey! Don't use these commands here; use them on your server.");
+    if (!interaction.inGuild()) return interaction.reply({ content: "Hey! Don't use these commands here; use them on your server.", flags: MessageFlags.Ephemeral });
 
     const command = interaction.client.commands.get(interaction.commandName);
     if (!command) return console.warn(`No command matching ${interaction.commandName} was found.`);
