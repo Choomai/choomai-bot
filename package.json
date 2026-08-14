@@ -33,5 +33,8 @@
         "@commitlint/config-conventional": "^20.5.0",
         "@dotenvx/dotenvx": "^1.61.1",
         "vitest": "^4.1.7"
+    },
+    "allowScripts": {
+        "msgpackr-extract@3.0.4": true
     }
 }
