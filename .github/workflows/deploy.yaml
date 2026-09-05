@@ -1,4 +1,4 @@
-name: Build on Version Bump
+name: Deploy to Heroku
 
 on:
   push:
