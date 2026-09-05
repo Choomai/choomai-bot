@@ -33,7 +33,7 @@ client.db = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
-client.redis = new Redis(process.env.REDIS_URL);
+client.redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
 const server = express();
 server.use(express.json());
 server.enable("trust proxy");
@@ -150,13 +150,13 @@ new Worker("afk", async job => {
     user.send("Your AFK status has expired.")
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
     if (job.data.notifyId) await afkNotify.removeJobScheduler(job.data.notifyId);
-}, process.env.REDIS_URL);
+}, { connection: client.redis });
 new Worker("notify", async job => {
     const user = await client.users.fetch(job.data.userId);
     console.log(`Sending AFK notification to user ${user.username}.`);
     user.send(`You have ${formatTime(job.data.endTime - Date.now())} left.`)
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
-}, process.env.REDIS_URL);
+}, { connection: client.redis });
 
 
 /**
