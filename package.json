@@ -6,7 +6,8 @@
     "main": "app.js",
     "scripts": {
         "test": "vitest run",
-        "sync": "node sync_cmd.js"
+        "sync": "node sync_cmd.js",
+        "start": "node app.js"
     },
     "author": {
         "name": "Choomai",
