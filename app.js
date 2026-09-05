@@ -15,11 +15,6 @@ import { formatTime } from "./include/time.js";
 import { simpleLog, commandLog, autoMuteLog } from "./include/log.js";
 import { isOnCooldown } from "./include/cooldown.js";
 
-const REDIS_CONF = {
-    host: process.env.REDIS_HOST,
-    path: process.env.REDIS_SOCKET
-};
-
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -38,7 +33,7 @@ client.db = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
-client.redis = new Redis(REDIS_CONF);
+client.redis = new Redis(process.env.REDIS_URL);
 const server = express();
 server.use(express.json());
 server.enable("trust proxy");
@@ -146,8 +141,8 @@ client.on(Events.MessageCreate, async message => {
  * If notify interval is set -> schedule recurring jobs in afkNotify to trigger at each notify interval (with userId and AFK end time as data)
  * When afkQueue job runs (means AFK expired) -> send DM to user that AFK has expired -> remove any remaining notify jobs for that user
  */
-const afkQueue = new Queue("afk", { connection: REDIS_CONF });
-const afkNotify = new Queue("notify", { connection: REDIS_CONF });
+const afkQueue = new Queue("afk", process.env.REDIS_URL);
+const afkNotify = new Queue("notify", process.env.REDIS_URL);
 const passingObj = { afkQueue, afkNotify };
 new Worker("afk", async job => {
     const user = await client.users.fetch(job.id);
@@ -155,13 +150,13 @@ new Worker("afk", async job => {
     user.send("Your AFK status has expired.")
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
     if (job.data.notifyId) await afkNotify.removeJobScheduler(job.data.notifyId);
-}, { connection: REDIS_CONF });
+}, process.env.REDIS_URL);
 new Worker("notify", async job => {
     const user = await client.users.fetch(job.data.userId);
     console.log(`Sending AFK notification to user ${user.username}.`);
     user.send(`You have ${formatTime(job.data.endTime - Date.now())} left.`)
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
-}, { connection: REDIS_CONF });
+}, process.env.REDIS_URL);
 
 
 /**
