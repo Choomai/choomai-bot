@@ -86,15 +86,3 @@ jobs:
           tags: |
             ghcr.io/${{ needs.check.outputs.image_name }}:latest
             ghcr.io/${{ needs.check.outputs.image_name }}:${{ needs.check.outputs.version }}
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install Heroku CLI # <- IMPORTANT!!! Make sure the cli is installed before using the action
-        run: |
-          curl https://cli-assets.heroku.com/install.sh | sh 
-      - uses: akhileshns/heroku-deploy@v3.15.15 # This is the action
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "choomai-bot" #Must be unique in Heroku
-          heroku_email: "heroku@choomai.net"
