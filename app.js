@@ -33,7 +33,7 @@ client.db = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
-client.redis = new Redis(process.env.REDIS_URL);
+client.redis = new Redis(process.env.REDIS_URL, { tls: { rejectUnauthorized: false } });
 const server = express();
 server.use(express.json());
 server.enable("trust proxy");
@@ -144,7 +144,13 @@ client.on(Events.MessageCreate, async message => {
 const afkQueue = new Queue("afk", client.redis);
 const afkNotify = new Queue("notify", client.redis);
 const passingObj = { afkQueue, afkNotify };
-const workerRedis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
+const workerRedis = new Redis(
+    process.env.REDIS_URL,
+    {
+        maxRetriesPerRequest: null,
+        tls: { rejectUnauthorized: false }
+    }
+);
 new Worker("afk", async job => {
     const user = await client.users.fetch(job.id);
     console.log(`AFK status expired for user ${user.username}.`);
