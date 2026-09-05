@@ -33,7 +33,7 @@ client.db = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
-client.redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
+client.redis = new Redis(process.env.REDIS_URL);
 const server = express();
 server.use(express.json());
 server.enable("trust proxy");
@@ -141,22 +141,23 @@ client.on(Events.MessageCreate, async message => {
  * If notify interval is set -> schedule recurring jobs in afkNotify to trigger at each notify interval (with userId and AFK end time as data)
  * When afkQueue job runs (means AFK expired) -> send DM to user that AFK has expired -> remove any remaining notify jobs for that user
  */
-const afkQueue = new Queue("afk", process.env.REDIS_URL);
-const afkNotify = new Queue("notify", process.env.REDIS_URL);
+const afkQueue = new Queue("afk", client.redis);
+const afkNotify = new Queue("notify", client.redis);
 const passingObj = { afkQueue, afkNotify };
+const workerRedis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
 new Worker("afk", async job => {
     const user = await client.users.fetch(job.id);
     console.log(`AFK status expired for user ${user.username}.`);
     user.send("Your AFK status has expired.")
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
     if (job.data.notifyId) await afkNotify.removeJobScheduler(job.data.notifyId);
-}, { connection: client.redis });
+}, { connection: workerRedis });
 new Worker("notify", async job => {
     const user = await client.users.fetch(job.data.userId);
     console.log(`Sending AFK notification to user ${user.username}.`);
     user.send(`You have ${formatTime(job.data.endTime - Date.now())} left.`)
         .catch(() => console.warn(`Failed to send DM, ${user.username} might disabled it.`));
-}, { connection: client.redis });
+}, { connection: workerRedis });
 
 
 /**
