@@ -175,11 +175,11 @@ Sends a Wake-on-LAN magic packet to a device on your network.
 
 The bot automatically times out members who join and leave a voice channel within 5 seconds, issuing a **10 minutes timeout**. Members with the **Manage Channels** permission are exempt. The action is logged to the configured log channel.
 
-<!-- ---
+---
 
 ## Development
 
-Install dev dependencies (includes `dotenv` and `commitlint`):
+Install dev dependencies:
 
 ```bash
 npm install
@@ -191,4 +191,4 @@ To sync slash commands to your test server after making changes:
 
 ```bash
 npm run sync
-``` -->
+```
